@@ -1,0 +1,355 @@
+there are 35 molecules in the file.
+0
+BRICS: 1
+Recap: 0
+1
+BRICS: 2
+Recap: 2
+2
+BRICS: 6
+Recap: 9
+3
+BRICS: 1
+Recap: 0
+4
+BRICS: 4
+Recap: 2
+5
+BRICS: 6
+Recap: 5
+6
+BRICS: 5
+Recap: 2
+7
+BRICS: 5
+Recap: 2
+8
+BRICS: 5
+Recap: 5
+9
+BRICS: 4
+Recap: 3
+10
+BRICS: 2
+Recap: 0
+11
+BRICS: 4
+Recap: 5
+12
+BRICS: 3
+Recap: 2
+13
+BRICS: 1
+Recap: 0
+14
+BRICS: 3
+Recap: 2
+15
+BRICS: 1
+Recap: 0
+16
+BRICS: 2
+Recap: 2
+17
+BRICS: 2
+Recap: 2
+18
+BRICS: 3
+Recap: 5
+19
+BRICS: 6
+Recap: 5
+20
+BRICS: 3
+Recap: 2
+21
+BRICS: 2
+Recap: 2
+22
+BRICS: 6
+Recap: 5
+23
+BRICS: 7
+Recap: 10
+24
+BRICS: 5
+Recap: 5
+25
+BRICS: 3
+Recap: 2
+26
+BRICS: 5
+Recap: 5
+27
+BRICS: 6
+Recap: 5
+28
+BRICS: 3
+Recap: 2
+29
+BRICS: 5
+Recap: 5
+30
+BRICS: 5
+Recap: 5
+31
+BRICS: 6
+Recap: 5
+32
+BRICS: 7
+Recap: 14
+33
+BRICS: 7
+Recap: 14
+34
+there are 35 molecules in the file.
+0
+BRICS: 3
+Recap: 0
+1
+BRICS: 1
+Recap: 0
+2
+BRICS: 2
+Recap: 2
+3
+BRICS: 6
+Recap: 9
+4
+BRICS: 1
+Recap: 0
+5
+BRICS: 4
+Recap: 2
+6
+BRICS: 6
+Recap: 5
+7
+BRICS: 5
+Recap: 2
+8
+BRICS: 5
+Recap: 2
+9
+BRICS: 5
+Recap: 5
+10
+BRICS: 4
+Recap: 3
+11
+BRICS: 2
+Recap: 0
+12
+BRICS: 4
+Recap: 5
+13
+BRICS: 3
+Recap: 2
+14
+BRICS: 1
+Recap: 0
+15
+BRICS: 3
+Recap: 2
+16
+BRICS: 1
+Recap: 0
+17
+BRICS: 2
+Recap: 2
+18
+BRICS: 2
+Recap: 2
+19
+BRICS: 3
+Recap: 5
+20
+BRICS: 6
+Recap: 5
+21
+BRICS: 3
+Recap: 2
+22
+BRICS: 2
+Recap: 2
+23
+BRICS: 6
+Recap: 5
+24
+BRICS: 7
+Recap: 10
+25
+BRICS: 5
+Recap: 5
+26
+BRICS: 3
+Recap: 2
+27
+BRICS: 5
+Recap: 5
+28
+BRICS: 6
+Recap: 5
+29
+BRICS: 3
+Recap: 2
+30
+BRICS: 5
+Recap: 5
+31
+BRICS: 5
+Recap: 5
+32
+BRICS: 6
+Recap: 5
+33
+BRICS: 7
+Recap: 14
+34
+BRICS: 7
+Recap: 14
+there are 35 molecules in the file.
+0
+BRICS: 3
+Recap: 0
+
+1
+BRICS: 1
+Recap: 0
+
+2
+BRICS: 2
+Recap: 2
+
+3
+BRICS: 6
+Recap: 9
+
+4
+BRICS: 1
+Recap: 0
+
+5
+BRICS: 4
+Recap: 2
+
+6
+BRICS: 6
+Recap: 5
+
+7
+BRICS: 5
+Recap: 2
+
+8
+BRICS: 5
+Recap: 2
+
+9
+BRICS: 5
+Recap: 5
+
+10
+BRICS: 4
+Recap: 3
+
+11
+BRICS: 2
+Recap: 0
+
+12
+BRICS: 4
+Recap: 5
+
+13
+BRICS: 3
+Recap: 2
+
+14
+BRICS: 1
+Recap: 0
+
+15
+BRICS: 3
+Recap: 2
+
+16
+BRICS: 1
+Recap: 0
+
+17
+BRICS: 2
+Recap: 2
+
+18
+BRICS: 2
+Recap: 2
+
+19
+BRICS: 3
+Recap: 5
+
+20
+BRICS: 6
+Recap: 5
+
+21
+BRICS: 3
+Recap: 2
+
+22
+BRICS: 2
+Recap: 2
+
+23
+BRICS: 6
+Recap: 5
+
+24
+BRICS: 7
+Recap: 10
+
+25
+BRICS: 5
+Recap: 5
+
+26
+BRICS: 3
+Recap: 2
+
+27
+BRICS: 5
+Recap: 5
+
+28
+BRICS: 6
+Recap: 5
+
+29
+BRICS: 3
+Recap: 2
+
+30
+BRICS: 5
+Recap: 5
+
+31
+BRICS: 5
+Recap: 5
+
+32
+BRICS: 6
+Recap: 5
+
+33
+BRICS: 7
+Recap: 14
+
+34
+BRICS: 7
+Recap: 14
+
+TOTAL GREATER
+BRICS : 20
+RECAP: 6
+SAME: 9
