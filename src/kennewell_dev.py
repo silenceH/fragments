@@ -168,10 +168,17 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap):
 	## overlap : specifies whether fragments should be overlapping (boolean)
 
 	## import mols from data_file 
+
+	try:
+		data = os.environ['DATA']		## get data env
+		print "found data environment: " + data
+	except KeyError:
+		print "cannot find data environment variable"
+
 	if noHs:
-		suppl = Chem.SDMolSupplier('../data/validation_overlays/'+data_file+'.sdf')
+		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf')
 	else: 
-		suppl = Chem.SDMolSupplier('../data/validation_overlays/'+data_file+'.sdf',removeHs=False)
+		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf',removeHs=False)
 
 	mols = [x for x in suppl if x is not None]
 	candidate_pairs = []
@@ -254,24 +261,35 @@ def collect_bioisosteres(*args):
 	print "comparing..."
 	compared = 0
 	count = 0
-	for i in range(len(collection)-1):
-		grouped = collection[i]
-		compare = collection[i+1:]
-		for compare_group in compare:
-			## obtain groups of molecules to be compared
-			for reference_group,query_group in ((x,y) for x in grouped for y in compare_group):
-				## obtain the molecules from the groups to be compared
-				compared += 1
-				for reference,query in ((m1,m2) for m1 in reference_group for m2 in query_group):
-					if are_similar(reference,query,1.0):
-						new_group = reference_group + query_group
-						final_collection.append(new_group)
-						count += 1
-						break
+	unfinished = True
+	while unfinished: 
+		changes = 0
+		for i in range(len(collection)-1):
+			grouped = collection[i]
+			compare = collection[i+1:]
+			for compare_group in compare:
+				## obtain groups of molecules to be compared
+				for reference_group,query_group in ((x,y) for x in grouped for y in compare_group):
+					## obtain the molecules from the groups to be compared
+					compared += 1
+					for reference,query in ((m1,m2) for m1 in reference_group for m2 in query_group):
+						if are_similar(reference,query,1.0):
+							new_group = reference_group + query_group
+							final_collection.append(new_group)
+							count += 1
+							changes += 1
+							break
+		if changes == 0:
+			unfinished = False
+		else: 
+			print "changes on last loop : " + str(changes)
+			print "comparing ... "
+			collection = [final_collection]
+			final_collection = []
 	print "groups compared: " + str(compared)
 	print "groups united: " + str(count)
 
-	directory = '../test_output/compared_results' 
+	directory = '../test_output/compared_results/' 
 	try: 
 		os.makedirs(directory)
 		print "created new directory: " + directory
@@ -295,5 +313,5 @@ file_3 = 'O14757'
 ##get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True)
 ##get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True)
 ##get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True)
-collect_bioisosteres(file_1,file_2,file_3,'P12758')
+collect_bioisosteres(file_1,file_2,file_3)
 
