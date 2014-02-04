@@ -159,13 +159,14 @@ def score_pairs_kennewell(mol1,mol2):
 	else: 
 		return False
 
-def get_bioisosteres(data_file,noHs,brics, kennewell,overlap):
+def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	## gets bioisosteric pairs from an sdf file
 	## data_file : string of data file without .sdf
 	## noHs : specifies whether Hs are to be removed (boolean)
 	## brics : specifies whether brics bonds are broken at fragmentation (boolean)
 	## kennewell : specifies whether kennewell scoring is to be used (boolean)
 	## overlap : specifies whether fragments should be overlapping (boolean)
+	## test : if true, does not write files 
 
 	## import mols from data_file 
 
@@ -237,14 +238,14 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap):
 		print "created new directory: " + directory
 	except OSError:
 		print directory + " already exists."	
-	
-	# write groups to file
-	write_mols_to_file(grouped,'group',directory)
-	write_mols_to_file(final_group,'final_group',directory)
-	
-	# draw mols to png
-	draw_mols_to_png(grouped,'group',directory)
-	draw_mols_to_png(final_group,'final_group',directory)
+	if not test: 
+		# write groups to file
+		write_mols_to_file(grouped,'group',directory)
+		write_mols_to_file(final_group,'final_group',directory)
+		
+		# draw mols to png
+		draw_mols_to_png(grouped,'group',directory)
+		draw_mols_to_png(final_group,'final_group',directory)
 	
 	print "Tanimoto cut off is 1."
 	if overlap: print "Overlapping fragments."
@@ -256,62 +257,58 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap):
 	return final_group
 
 def collect_bioisosteres(*args):
-	final_collection = []
-	collection = [get_bioisosteres(data,True,True,True,False) for data in args]
+	coll = [get_bioisosteres(data,True,True,True,False,True) for data in args]
+	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
+#	coll_fps = [[AllChem.GetMorganFingerprint(collection[i][j],2) for j in range(len(collection[i]))] for i in range(len(collection))]
+	final_collection = [collection[0]]
+	collection= collection[1:]
+	print " number of groups to compare: " + str(len(collection)+ 1)
 	print "comparing..."
-	compared = 0
-	count = 0
-	unfinished = True
-	while unfinished: 
-		changes = 0
-		for i in range(len(collection)-1):
-			grouped = collection[i]
-			compare = collection[i+1:]
-			for compare_group in compare:
-				## obtain groups of molecules to be compared
-				for reference_group,query_group in ((x,y) for x in grouped for y in compare_group):
-					## obtain the molecules from the groups to be compared
-					compared += 1
-					for reference,query in ((m1,m2) for m1 in reference_group for m2 in query_group):
-						if are_similar(reference,query,1.0):
-							new_group = reference_group + query_group
-							final_collection.append(new_group)
-							count += 1
-							changes += 1
-							break
-		if changes == 0:
-			unfinished = False
-		else: 
-			print "changes on last loop : " + str(changes)
-			print "comparing ... "
-			collection = [final_collection]
-			final_collection = []
-	print "groups compared: " + str(compared)
-	print "groups united: " + str(count)
+	while len(collection) > 0: 
+		count = 0
+		q_frags = collection[0]
+		for ref_frags in final_collection:
+			match = False
+			for ref,q in ((m1,m2) for m1 in ref_frags for m2 in q_frags):
+				#if DataStructs.TanimotoSimilarity(ref,q) == 1.0:
+				if are_similar(ref,q,1.):
+					match = True
+					break
+			if match:
+				ref_frags.extend(q_frags)
+				count += 1
+			else:
+				final_collection.append(q_frags)
+		collection= collection[1:]
+		print "groups extended: " + str(count)
+		final_collection = [remove_2D_equivalents(x) for x in final_collection]
+		print "length of final collection: " + str(len(final_collection))
+		print "comparing... \n"
 
-	directory = '../test_output/compared_results/' 
-	try: 
-		os.makedirs(directory)
-		print "created new directory: " + directory
-	except OSError:
-		print directory + " already exists."	
-	write_mols_to_file(final_collection,'final_collection',directory)
-	draw_mols_to_png(final_collection,'final_collection',directory)
+	##directory = '../test_output/compared_results/' 
+	##try: 
+	##	os.makedirs(directory)
+	##	print "created new directory: " + directory
+	##except OSError:
+	##	print directory + " already exists."	
+	##write_mols_to_file(final_collection,'final_collection',directory)
+	##draw_mols_to_png(final_collection,'final_collection',directory)
+	print final_collection
 
 file_1 = 'P39900'
 file_2 = 'P56817'
 file_3 = 'O14757'
 
-#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = False, overlap = True)
-#get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True)
-#get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True)
-#get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False)
-#get_bioisosteres(file_2, noHs=True, brics=True, kennewell=True, overlap = False)
-#get_bioisosteres(file_1, noHs=False, brics=False, kennewell=False, overlap = True)
-#get_bioisosteres(file_1, noHs=False, brics=False, kennewell=False, overlap = False)
-##get_bioisosteres(file_2, noHs=False, brics=False, kennewell=False, overlap = True)
-##get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True)
-##get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True)
-##get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True)
+#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = False, overlap = True, test = False)
+#get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
+#get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True, test = False)
+#get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False, test = False)
+#get_bioisosteres(file_2, noHs=True, brics=True, kennewell=True, overlap = False, test = False)
+#get_bioisosteres(file_1, noHs=False, brics=False, kennewell=False, overlap = True, test = False)
+#get_bioisosteres(file_1, noHs=False, brics=False, kennewell=False, overlap = False, test = False)
+#get_bioisosteres(file_2, noHs=False, brics=False, kennewell=False, overlap = True, test = False)
+#get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
+#get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
+#get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
 collect_bioisosteres(file_1,file_2,file_3)
 

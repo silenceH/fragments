@@ -127,9 +127,6 @@ int main()
 
 }
 
-// TODO: Score Mols
-// TODO: I/O
-// TODO: management 
 // if we assume that all mols are fragmented equally then we only need to
 // overlay them once?? 
 // for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)	optimised ?? 
