@@ -26,10 +26,12 @@
 *.log
 *.sql
 *.sqlite
+*.sdf
 
 # vim files and images #
 *~
 *.png
+.swp
 
 # OS generated files #
 ######################

@@ -4,9 +4,8 @@
  * Matthew Seddon
  * January 2014
  * compile with:
- * g++ -o sample.exe sample.cpp -I$RDBASE/Code -I$RDBASE/Extern
- * -L$RDBASE/lib -lFileParsers -lDepictor -lChemTransforms
- * -lSubstructMatch -lGraphMol -lDataStructs -lRDGeometryLib -lRDGeneral
+ * g++ -std=c++11 -o frags_11 frags_11.cpp -I$RDBASE/Code -I$RDBASE/EXtern 
+ * -L$RDBASE/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
  */
 #include <string>
 #include <iostream>
@@ -16,7 +15,6 @@
 #include <GraphMol/ROMol.h>
 #include <GraphMol/Conformer.h>
 #include <GraphMol/RDKitBase.h>
-#include <RDGeneral/Invariant.h>
 #include <GraphMol/FileParsers/MolSupplier.h> // for obtaining the molecules from sdf
 #include <GraphMol/FileParsers/MolWriters.h> // for writing the molecules to sdf
 #include <GraphMol/FileParsers/FileParsers.h>
@@ -24,7 +22,6 @@
 #include <GraphMol/RDKitQueries.h>
 #include <GraphMol/Substruct/SubstructMatch.h>
 #include <GraphMol/Substruct/SubstructUtils.h>
-#include <RDGeneral/RDLog.h>
 
 
 using namespace RDKit;
@@ -65,7 +62,7 @@ int main()
 	auto mols = getMols("P39900");
 	// for each mol in mols, make the mol the reference and the 
 	// rest the queries
-	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
+	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end();++i)
 	{
 		ROMol* mol = *i;
 		cout <<"size of vector: " << mols.size() << endl;
@@ -79,7 +76,7 @@ int main()
 
 		// for the remaining molecules, fragment and score
 		int count = 0;
-		for(vector<ROMol*>::iterator j = i+1; j!=mols.end();++j)
+		for(vector<ROMol*>::iterator j = mols.begin(); j!=mols.end();++j)
 		{
 			if(*j != mol)
 			{
@@ -130,9 +127,10 @@ int main()
 
 }
 
-// TODO: Fragment Mols
 // TODO: Score Mols
 // TODO: I/O
 // TODO: management 
 // if we assume that all mols are fragmented equally then we only need to
 // overlay them once?? 
+// for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)	optimised ?? 
+// for(vector<ROMfor(vector<ROMol*>::iterator j = i+1; j!=mols.end();++j)
