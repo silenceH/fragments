@@ -67,12 +67,6 @@ int main()
 		ROMol* mol = *i;
 		cout <<"size of vector: " << mols.size() << endl;
 
-		
-		auto ref_sections = fragment_mol(*mol);
-		for(const auto& f : ref_sections)
-		{
-			cout << f->getNumAtoms() << endl;
-		}
 
 		// for the remaining molecules, fragment and score
 		int count = 0;

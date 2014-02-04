@@ -2,7 +2,7 @@
 import os
 from math import sqrt, exp
 from rdkit import Chem, DataStructs
-from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, PyMol, Descriptors
+from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 
 
 def atom_coords(molecule,atom_no):
@@ -281,7 +281,6 @@ def collect_bioisosteres(*args):
 				final_collection.append(q_frags)
 		collection= collection[1:]
 		print "groups extended: " + str(count)
-		final_collection = [remove_2D_equivalents(x) for x in final_collection]
 		print "length of final collection: " + str(len(final_collection))
 		print "comparing... \n"
 
@@ -294,6 +293,32 @@ def collect_bioisosteres(*args):
 	##write_mols_to_file(final_collection,'final_collection',directory)
 	##draw_mols_to_png(final_collection,'final_collection',directory)
 	print final_collection
+
+def collect_bioisosteres_by_smiles(*args):
+	coll = [get_bioisosteres(data,True,True,True,False,True) for data in args]
+	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
+	smiles = [[Chem.MolToSmiles(collection[i][j]) for j in range(len(collection[i]))] for i in range(len(collection))]
+	final_collection = [set(smiles[0])]
+	smiles= smiles[1:]
+	print " number of groups to compare: " + str(len(collection)+ 1)
+	print "comparing..."
+	it = 0
+	while len(smiles) > 0: 
+		count = 0
+		q_frags = set(smiles[0])
+		for ref_frags in final_collection:
+			if len(ref_frags.intersection(q_frags)) > 0:
+				ref_frags.update(q_frags)
+				count += 1
+			else:
+				final_collection.append(q_frags)
+		smiles= smiles[1:]
+		it += 1
+		print "groups extended: " + str(count)
+		print "length of final collection: " + str(len(final_collection))
+		print "number of iterations: " + str(it)
+		print "comparing... \n"
+	
 
 file_1 = 'P39900'
 file_2 = 'P56817'
@@ -310,5 +335,5 @@ file_3 = 'O14757'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-collect_bioisosteres(file_1,file_2,file_3)
+collect_bioisosteres_by_smiles(file_1,file_2)
 
