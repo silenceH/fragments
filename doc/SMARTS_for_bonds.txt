@@ -1,0 +1,6 @@
+## SMARTS expressions for matching bonds
+#
+# single bonds :: "[*]!@!#!=[*]"
+# simple rotatable bonds :: "[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]'
+# rotatable bonds :: '[!$([NH]!@C(=O))&!D1&!$(*#*)]-&!@[!$([NH]!@C(=O))&!D1&!$(*#*)]
+#

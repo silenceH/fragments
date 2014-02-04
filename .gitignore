@@ -31,7 +31,7 @@
 # vim files and images #
 *~
 *.png
-.swp
+*.swp
 
 # OS generated files #
 ######################
