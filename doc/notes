@@ -1,9 +1,0 @@
-the structure of the directory is:
-bin -> output executables go here
-build -> all object files
-data -> specific data files
-include -> all header files
-src -> source code
-test -> all tests
-
-TODO: create a git ignore file to ignore non code
