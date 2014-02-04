@@ -306,23 +306,36 @@ def collect_bioisosteres_by_smiles(*args):
 	while len(smiles) > 0: 
 		count = 0
 		q_frags = set(smiles[0])
+		matched = False
 		for ref_frags in final_collection:
 			if len(ref_frags.intersection(q_frags)) > 0:
 				ref_frags.update(q_frags)
 				count += 1
-			else:
-				final_collection.append(q_frags)
+				matched = True
+		if not matched:
+			final_collection.append(q_frags)
 		smiles= smiles[1:]
 		it += 1
 		print "groups extended: " + str(count)
 		print "length of final collection: " + str(len(final_collection))
 		print "number of iterations: " + str(it)
 		print "comparing... \n"
-	
+	directory = '../test_output/compared_results/' 
+	try: 
+		os.makedirs(directory)
+		print "created new directory: " + directory
+	except OSError:
+		print directory + " already exists."	
+	print "total number of candidates : " +  str(len(final_collection))
+	final_collection = [[Chem.MolFromSmiles(mol) for mol in smi] for smi in final_collection]
+	draw_mols_to_png(final_collection,'final_collection',directory)
+
+
 
 file_1 = 'P39900'
 file_2 = 'P56817'
-file_3 = 'O14757'
+file_3 = 'P35557'
+file_4 = 'Q92731'
 
 #get_bioisosteres(file_1, noHs=True, brics=True, kennewell = False, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
@@ -335,5 +348,5 @@ file_3 = 'O14757'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-collect_bioisosteres_by_smiles(file_1,file_2)
+collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
 
