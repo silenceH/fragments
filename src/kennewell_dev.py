@@ -155,8 +155,10 @@ def score_pairs_kennewell(mol1,mol2):
 		section_score.append(sum([exp(-pow(d,2)) for d in dist]))
 	av_score = sum(section_score)*(2./(atoms_f+atoms_ref))
 	if av_score>0.7:
+		print av_score
 		return True 
 	else: 
+		print "not a pair"
 		return False
 
 def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
@@ -203,11 +205,11 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 					candidate = True
 					if kennewell:  
 						candidate = score_pairs_kennewell(s,f) 	## Kennewell scores
+						count += 1
 					else: 
 						candidate = score_pairs_TD(s,f)		## Tanimoto distance
 					if candidate and not are_similar(s,f,1.0): 
 						section_pairs.append(f)
-						count += 1
 				if len(section_pairs) > 1:
 					candidate_pairs.append(section_pairs)
 					in_grouped = False
@@ -254,10 +256,10 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	print "Number of groups: " + str(len(grouped))
 	print "Number of sections: " + str(len(candidate_pairs))					
 	print "Total pairs : " + str(count) + "\n"
-	return final_group
+	##return final_group
 
 def collect_bioisosteres(*args):
-	coll = [get_bioisosteres(data,True,True,True,False,True) for data in args]
+	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
 #	coll_fps = [[AllChem.GetMorganFingerprint(collection[i][j],2) for j in range(len(collection[i]))] for i in range(len(collection))]
 	final_collection = [collection[0]]
@@ -295,7 +297,7 @@ def collect_bioisosteres(*args):
 	print final_collection
 
 def collect_bioisosteres_by_smiles(*args):
-	coll = [get_bioisosteres(data,True,True,True,False,True) for data in args]
+	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
 	smiles = [[Chem.MolToSmiles(collection[i][j]) for j in range(len(collection[i]))] for i in range(len(collection))]
 	final_collection = [set(smiles[0])]
@@ -348,5 +350,5 @@ file_4 = 'Q92731'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
+##collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,'O76290')
 

@@ -27,17 +27,22 @@
 using namespace RDKit;
 using namespace std;
 
+typedef boost::shared_ptr<ROMol> sp_fragments;
+
 /*
  * Method to fragment a mol into BRICS fragments
  */
-vector<boost::shared_ptr<ROMol> > fragment_mol(ROMol& mol)
+vector<sp_fragments> fragment_mol(ROMol& mol)
 {
 	// take a dereferenced mol pointer and fragment
 	ROMol* frag = MolFragmenter::fragmentOnBRICSBonds(mol);
-	auto num_frags = MolOps::getMolFrags(*frag);
+	vector<sp_fragments> num_frags = MolOps::getMolFrags(*frag);
 	return num_frags;
 }
 
+bool molecules(ROMol& mol1, ROMol& mol2)
+{
+}
 
 /* 
  * Method that takes a file name and returns a vector of ROMol pointers
@@ -62,14 +67,16 @@ int main()
 	auto mols = getMols("P39900");
 	// for each mol in mols, make the mol the reference and the 
 	// rest the queries
+	
+	int count = 0;
 	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end();++i)
 	{
-		ROMol* mol = *i;
+		ROMol *mol = *i;
 		cout <<"size of vector: " << mols.size() << endl;
-
+		
+		auto ref_fragments = fragment_mol(*mol); 	// as mol is a smart pointer we use *mol
 
 		// for the remaining molecules, fragment and score
-		int count = 0;
 		for(vector<ROMol*>::iterator j = mols.begin(); j!=mols.end();++j)
 		{
 			if(*j != mol)
@@ -80,48 +87,53 @@ int main()
 				// for each fragment in a reference molecule
 				// produce the section score
 				// get vector of coordinates
-				Conformer ref_conf = mol->getConformer();
-				auto ref_pos = ref_conf.getPositions();
-				Conformer q_conf = query->getConformer();
-				auto q_pos = q_conf.getPositions();
-
-				// calculate distance
-				long double section_dist = 0;
-				for(const auto& r_atom : ref_pos)
+				for(const auto& ref_frag : ref_fragments)
 				{
-					for(const auto& q_atom : q_pos)
+					Conformer ref_conf = ref_frag->getConformer();
+					auto ref_pos = ref_conf.getPositions();
+					for(const auto& q_frag : query_fragments)
 					{
-						double x = r_atom.x - q_atom.x;
-						double y = r_atom.y - q_atom.y;
-						double z = r_atom.z - q_atom.z;
-						long double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
-						section_dist += exp(-pow(dist,2));
+						Conformer q_conf = q_frag->getConformer();
+						auto q_pos = q_conf.getPositions();
+
+						// calculate distance
+						long double section_dist = 0;
+						for(const auto& r_atom : ref_pos)
+						{
+							for(const auto& q_atom : q_pos)
+							{
+								double x = r_atom.x - q_atom.x;
+								double y = r_atom.y - q_atom.y;
+								double z = r_atom.z - q_atom.z;
+								long double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
+								// calculate gaussian overlap 
+								section_dist += exp(-pow(dist,2));
+							}
+						}
+						// calculate average overlap 
+						double total_atoms = (mol->getNumAtoms() + q_frag->getNumAtoms());
+						long double section_score = section_dist * (2/total_atoms);
+						// test:: print average overlap if successfull otherwise print "NOT A PAIR" 
+						if (section_score > 0.7)
+						{
+							cout << section_dist << endl;
+							count ++;
+						} else
+						{
+							cout << "NOT A PAIR" << endl;
+						}
+
 					}
 				}
-				double tot = (mol->getNumAtoms() + query->getNumAtoms());
-				long double section_score = section_dist * (2/tot);
-				if (section_score > 0.7)
-				{
-					cout << section_dist << endl;
-				} else
-				{
-					cout << "NOT A PAIR" << endl;
-				}
-
-				count++;
 			} 
 		}
-		cout << "number of comparisons: " << count << endl;
-	
-
 	}
-	auto new_frags = fragment_mol(*mols[0]);
-
-	return 0;
+	cout << "number of pairs: " << count << endl;
 
 }
 
 // if we assume that all mols are fragmented equally then we only need to
 // overlay them once?? 
-// for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)	optimised ?? 
-// for(vector<ROMfor(vector<ROMol*>::iterator j = i+1; j!=mols.end();++j)
+// for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
+// for(vector<ROMol*>::iterator j = i+1; j!=mols.end();++j)
+// TODO:: optimise loops?? 
