@@ -40,9 +40,6 @@ vector<sp_fragments> fragment_mol(ROMol& mol)
 	return num_frags;
 }
 
-bool molecules(ROMol& mol1, ROMol& mol2)
-{
-}
 
 /* 
  * Method that takes a file name and returns a vector of ROMol pointers
@@ -72,7 +69,7 @@ int main()
 	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end();++i)
 	{
 		ROMol *mol = *i;
-		cout <<"size of vector: " << mols.size() << endl;
+		//cout <<"size of vector: " << mols.size() << endl;
 		
 		auto ref_fragments = fragment_mol(*mol); 	// as mol is a smart pointer we use *mol
 
@@ -89,6 +86,10 @@ int main()
 				// get vector of coordinates
 				for(const auto& ref_frag : ref_fragments)
 				{
+					// create a vector of matched pairs
+					vector<sp_fragments> section_match;
+					section_match.push_back(ref_frag);
+
 					Conformer ref_conf = ref_frag->getConformer();
 					auto ref_pos = ref_conf.getPositions();
 					for(const auto& q_frag : query_fragments)
@@ -111,24 +112,38 @@ int main()
 							}
 						}
 						// calculate average overlap 
-						double total_atoms = (mol->getNumAtoms() + q_frag->getNumAtoms());
+						double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
 						long double section_score = section_dist * (2/total_atoms);
 						// test:: print average overlap if successfull otherwise print "NOT A PAIR" 
 						if (section_score > 0.7)
 						{
-							cout << section_dist << endl;
-							count ++;
-						} else
-						{
-							cout << "NOT A PAIR" << endl;
+							section_match.push_back(q_frag);
 						}
-
+					
+					}
+					if(section_match.size() > 1)
+					{
+						//cout << "number of pairs in section: " << section_match.size() << endl;
+						string fname = "../test_output/test_pairs/pair_" + to_string(count)+".sdf";
+						SDWriter *writer = new SDWriter(fname);
+						for(auto const& match : section_match)
+						{
+							writer->write(*match);
+						}
+						writer->flush();
+						writer->close();
+						delete writer;
+						count ++;
 					}
 				}
 			} 
 		}
 	}
 	cout << "number of pairs: " << count << endl;
+	for(const auto& mol : mols)
+	{
+		delete mol;
+	}
 
 }
 
