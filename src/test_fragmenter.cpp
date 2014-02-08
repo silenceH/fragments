@@ -51,6 +51,7 @@ int main()
 		}
 	}
 	
+	
 	cout<<"number of pairs: "<<candidate_pairs.size()<<endl;
 	for(vector<sp_fragments>::iterator i = candidate_pairs.begin();i!=candidate_pairs.end(); ++i)
 	{
@@ -58,5 +59,7 @@ int main()
 		cout << num << endl;
 	}
 	
+	delete nmol;
+	delete mol;
 	return 0;
 }
