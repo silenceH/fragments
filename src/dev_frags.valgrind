@@ -1,103 +1,103 @@
-==6045== Memcheck, a memory error detector
-==6045== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
-==6045== Using Valgrind-3.9.0 and LibVEX; rerun with -h for copyright info
-==6045== Command: ./dev_frags_11.exe
-==6045== 
---6045-- Valgrind options:
---6045--    -v
---6045--    --tool=memcheck
---6045-- Contents of /proc/version:
---6045--   Linux version 3.12.9-301.fc20.x86_64 (mockbuild@bkernel02) (gcc version 4.8.2 20131212 (Red Hat 4.8.2-7) (GCC) ) #1 SMP Wed Jan 29 15:56:22 UTC 2014
---6045-- Arch and hwcaps: AMD64, amd64-cx16-rdtscp-sse3-avx
---6045-- Page sizes: currently 4096, max supported 4096
---6045-- Valgrind library directory: /usr/lib64/valgrind
---6045-- Reading syms from /home/matthew/Dropbox/fragments/src/dev_frags_11.exe
---6045-- Reading syms from /usr/lib64/ld-2.18.so
---6045-- Reading syms from /usr/lib64/valgrind/memcheck-amd64-linux
---6045--    object doesn't have a symbol table
---6045--    object doesn't have a dynamic symbol table
---6045-- Scheduler: using generic scheduler lock implementation.
---6045-- Reading suppressions file: /usr/lib64/valgrind/default.supp
-==6045== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-6045-by-matthew-on-double-helix
-==6045== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-6045-by-matthew-on-double-helix
-==6045== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-6045-by-matthew-on-double-helix
-==6045== 
-==6045== TO CONTROL THIS PROCESS USING vgdb (which you probably
-==6045== don't want to do, unless you know exactly what you're doing,
-==6045== or are doing some strange experiment):
-==6045==   /usr/lib64/valgrind/../../bin/vgdb --pid=6045 ...command...
-==6045== 
-==6045== TO DEBUG THIS PROCESS USING GDB: start GDB like this
-==6045==   /path/to/gdb ./dev_frags_11.exe
-==6045== and then give GDB the following command
-==6045==   target remote | /usr/lib64/valgrind/../../bin/vgdb --pid=6045
-==6045== --pid is optional if only one valgrind process is running
-==6045== 
---6045-- REDIR: 0x4018430 (strlen) redirected to 0x38067461 (???)
---6045-- Reading syms from /usr/lib64/valgrind/vgpreload_core-amd64-linux.so
---6045--    object doesn't have a symbol table
---6045-- Reading syms from /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so
---6045--    object doesn't have a symbol table
---6045-- REDIR: 0x4018380 (index) redirected to 0x4c29f60 (index)
---6045-- REDIR: 0x4018400 (strcmp) redirected to 0x4c2b040 (strcmp)
---6045-- Reading syms from /home/matthew/RDKit/lib/libFileParsers.so.1.2013.09.1
---6045-- Reading syms from /home/matthew/RDKit/lib/libGraphMol.so.1.2013.09.1
---6045-- Reading syms from /home/matthew/RDKit/lib/libRDGeneral.so.1.2013.09.1
---6045-- Reading syms from /home/matthew/RDKit/lib/libChemTransforms.so.1.2013.09.1
---6045-- Reading syms from /usr/lib64/libstdc++.so.6.0.19
---6045--    object doesn't have a symbol table
---6045-- Reading syms from /usr/lib64/libm-2.18.so
---6045-- Reading syms from /usr/lib64/libgcc_s-4.8.2-20131212.so.1
---6045--    object doesn't have a symbol table
---6045-- Reading syms from /usr/lib64/libc-2.18.so
---6045-- Reading syms from /usr/lib64/libpthread-2.18.so
---6045-- Reading syms from /home/matthew/RDKit/lib/libSmilesParse.so.1.2013.09.1
---6045-- Reading syms from /home/matthew/RDKit/lib/libRDGeometryLib.so.1.2013.09.1
---6045-- Reading syms from /home/matthew/RDKit/lib/libDataStructs.so.1.2013.09.1
---6045-- Reading syms from /home/matthew/RDKit/lib/libSubstructMatch.so.1.2013.09.1
---6045-- REDIR: 0x60d7b90 (strcasecmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
---6045-- REDIR: 0x60d9e80 (strncasecmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
---6045-- REDIR: 0x60d7360 (memcpy@GLIBC_2.2.5) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
---6045-- REDIR: 0x60d6340 (__GI_strrchr) redirected to 0x4c29d80 (__GI_strrchr)
---6045-- REDIR: 0x60d45f0 (strlen) redirected to 0x4c2a2f0 (strlen)
---6045-- REDIR: 0x60d2b90 (strcmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
---6045-- REDIR: 0x618a200 (__strcmp_ssse3) redirected to 0x4c2afa0 (strcmp)
---6045-- REDIR: 0x5888650 (operator new(unsigned long)) redirected to 0x4c278de (operator new(unsigned long))
---6045-- REDIR: 0x60dc560 (memcpy@@GLIBC_2.14) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
---6045-- REDIR: 0x60e1f20 (__memcpy_sse2_unaligned) redirected to 0x4c2b390 (memcpy@@GLIBC_2.14)
---6045-- REDIR: 0x60ce8e0 (calloc) redirected to 0x4c2913e (calloc)
---6045-- REDIR: 0x58867d0 (operator delete(void*)) redirected to 0x4c2890a (operator delete(void*))
---6045-- REDIR: 0x60cdf10 (malloc) redirected to 0x4c273d6 (malloc)
---6045-- REDIR: 0x5888760 (operator new[](unsigned long)) redirected to 0x4c27f83 (operator new[](unsigned long))
---6045-- REDIR: 0x60d6d90 (bcmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
---6045-- REDIR: 0x61aa060 (__memcmp_sse4_1) redirected to 0x4c2c1e0 (bcmp)
---6045-- REDIR: 0x60d6a40 (memchr) redirected to 0x4c2b0e0 (memchr)
---6045-- REDIR: 0x60d2be0 (__GI_strcmp) redirected to 0x4c2aff0 (__GI_strcmp)
---6045-- REDIR: 0x60ce330 (free) redirected to 0x4c284f0 (free)
---6045-- REDIR: 0x619a090 (__memmove_ssse3_back) redirected to 0x4c2b160 (memcpy@GLIBC_2.2.5)
---6045-- REDIR: 0x60d73f0 (memset) redirected to 0x4c2c730 (memset)
---6045-- REDIR: 0x5886800 (operator delete[](void*)) redirected to 0x4c28dba (operator delete[](void*))
---6045-- REDIR: 0x60d4a60 (__GI_strncmp) redirected to 0x4c2a800 (__GI_strncmp)
---6045-- REDIR: 0x60d2b10 (__GI_strchr) redirected to 0x4c29e60 (__GI_strchr)
---6045-- REDIR: 0x60dde40 (strchrnul) redirected to 0x4c2cd30 (strchrnul)
-==6045== 
-==6045== HEAP SUMMARY:
-==6045==     in use at exit: 41,346,037 bytes in 672,596 blocks
-==6045==   total heap usage: 29,348,705 allocs, 28,676,109 frees, 1,237,322,209 bytes allocated
-==6045== 
-==6045== Searching for pointers to 672,596 not-freed blocks
-==6045== Checked 1,201,112 bytes
-==6045== 
-==6045== LEAK SUMMARY:
-==6045==    definitely lost: 55,568 bytes in 481 blocks
-==6045==    indirectly lost: 41,093,584 bytes in 668,730 blocks
-==6045==      possibly lost: 3,137 bytes in 115 blocks
-==6045==    still reachable: 193,748 bytes in 3,270 blocks
-==6045==         suppressed: 0 bytes in 0 blocks
-==6045== Rerun with --leak-check=full to see details of leaked memory
-==6045== 
-==6045== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 2 from 2)
---6045-- 
---6045-- used_suppression:      2 glibc-2.5.x-on-SUSE-10.2-(PPC)-2a /usr/lib64/valgrind/default.supp:1286
-==6045== 
-==6045== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 2 from 2)
+==23103== Memcheck, a memory error detector
+==23103== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==23103== Using Valgrind-3.9.0 and LibVEX; rerun with -h for copyright info
+==23103== Command: ./dev_frags_11.exe
+==23103== 
+--23103-- Valgrind options:
+--23103--    -v
+--23103--    --tool=memcheck
+--23103-- Contents of /proc/version:
+--23103--   Linux version 3.12.9-301.fc20.x86_64 (mockbuild@bkernel02) (gcc version 4.8.2 20131212 (Red Hat 4.8.2-7) (GCC) ) #1 SMP Wed Jan 29 15:56:22 UTC 2014
+--23103-- Arch and hwcaps: AMD64, amd64-cx16-rdtscp-sse3-avx
+--23103-- Page sizes: currently 4096, max supported 4096
+--23103-- Valgrind library directory: /usr/lib64/valgrind
+--23103-- Reading syms from /home/matthew/Dropbox/fragments/src/dev_frags_11.exe
+--23103-- Reading syms from /usr/lib64/ld-2.18.so
+--23103-- Reading syms from /usr/lib64/valgrind/memcheck-amd64-linux
+--23103--    object doesn't have a symbol table
+--23103--    object doesn't have a dynamic symbol table
+--23103-- Scheduler: using generic scheduler lock implementation.
+--23103-- Reading suppressions file: /usr/lib64/valgrind/default.supp
+==23103== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-23103-by-matthew-on-double-helix
+==23103== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-23103-by-matthew-on-double-helix
+==23103== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-23103-by-matthew-on-double-helix
+==23103== 
+==23103== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==23103== don't want to do, unless you know exactly what you're doing,
+==23103== or are doing some strange experiment):
+==23103==   /usr/lib64/valgrind/../../bin/vgdb --pid=23103 ...command...
+==23103== 
+==23103== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==23103==   /path/to/gdb ./dev_frags_11.exe
+==23103== and then give GDB the following command
+==23103==   target remote | /usr/lib64/valgrind/../../bin/vgdb --pid=23103
+==23103== --pid is optional if only one valgrind process is running
+==23103== 
+--23103-- REDIR: 0x4018430 (strlen) redirected to 0x38067461 (???)
+--23103-- Reading syms from /usr/lib64/valgrind/vgpreload_core-amd64-linux.so
+--23103--    object doesn't have a symbol table
+--23103-- Reading syms from /usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so
+--23103--    object doesn't have a symbol table
+--23103-- REDIR: 0x4018380 (index) redirected to 0x4c29f60 (index)
+--23103-- REDIR: 0x4018400 (strcmp) redirected to 0x4c2b040 (strcmp)
+--23103-- Reading syms from /home/matthew/RDKit/lib/libFileParsers.so.1.2013.09.1
+--23103-- Reading syms from /home/matthew/RDKit/lib/libGraphMol.so.1.2013.09.1
+--23103-- Reading syms from /home/matthew/RDKit/lib/libRDGeneral.so.1.2013.09.1
+--23103-- Reading syms from /home/matthew/RDKit/lib/libChemTransforms.so.1.2013.09.1
+--23103-- Reading syms from /usr/lib64/libstdc++.so.6.0.19
+--23103--    object doesn't have a symbol table
+--23103-- Reading syms from /usr/lib64/libm-2.18.so
+--23103-- Reading syms from /usr/lib64/libgcc_s-4.8.2-20131212.so.1
+--23103--    object doesn't have a symbol table
+--23103-- Reading syms from /usr/lib64/libc-2.18.so
+--23103-- Reading syms from /usr/lib64/libpthread-2.18.so
+--23103-- Reading syms from /home/matthew/RDKit/lib/libSmilesParse.so.1.2013.09.1
+--23103-- Reading syms from /home/matthew/RDKit/lib/libRDGeometryLib.so.1.2013.09.1
+--23103-- Reading syms from /home/matthew/RDKit/lib/libDataStructs.so.1.2013.09.1
+--23103-- Reading syms from /home/matthew/RDKit/lib/libSubstructMatch.so.1.2013.09.1
+--23103-- REDIR: 0x60d7b90 (strcasecmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
+--23103-- REDIR: 0x60d9e80 (strncasecmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
+--23103-- REDIR: 0x60d7360 (memcpy@GLIBC_2.2.5) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
+--23103-- REDIR: 0x60d6340 (__GI_strrchr) redirected to 0x4c29d80 (__GI_strrchr)
+--23103-- REDIR: 0x60d45f0 (strlen) redirected to 0x4c2a2f0 (strlen)
+--23103-- REDIR: 0x60d2b90 (strcmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
+--23103-- REDIR: 0x618a200 (__strcmp_ssse3) redirected to 0x4c2afa0 (strcmp)
+--23103-- REDIR: 0x5888650 (operator new(unsigned long)) redirected to 0x4c278de (operator new(unsigned long))
+--23103-- REDIR: 0x60dc560 (memcpy@@GLIBC_2.14) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
+--23103-- REDIR: 0x60e1f20 (__memcpy_sse2_unaligned) redirected to 0x4c2b390 (memcpy@@GLIBC_2.14)
+--23103-- REDIR: 0x60ce8e0 (calloc) redirected to 0x4c2913e (calloc)
+--23103-- REDIR: 0x58867d0 (operator delete(void*)) redirected to 0x4c2890a (operator delete(void*))
+--23103-- REDIR: 0x60cdf10 (malloc) redirected to 0x4c273d6 (malloc)
+--23103-- REDIR: 0x5888760 (operator new[](unsigned long)) redirected to 0x4c27f83 (operator new[](unsigned long))
+--23103-- REDIR: 0x60d6d90 (bcmp) redirected to 0x4a22716 (_vgnU_ifunc_wrapper)
+--23103-- REDIR: 0x61aa060 (__memcmp_sse4_1) redirected to 0x4c2c1e0 (bcmp)
+--23103-- REDIR: 0x60d6a40 (memchr) redirected to 0x4c2b0e0 (memchr)
+--23103-- REDIR: 0x60d2be0 (__GI_strcmp) redirected to 0x4c2aff0 (__GI_strcmp)
+--23103-- REDIR: 0x60ce330 (free) redirected to 0x4c284f0 (free)
+--23103-- REDIR: 0x619a090 (__memmove_ssse3_back) redirected to 0x4c2b160 (memcpy@GLIBC_2.2.5)
+--23103-- REDIR: 0x60d73f0 (memset) redirected to 0x4c2c730 (memset)
+--23103-- REDIR: 0x5886800 (operator delete[](void*)) redirected to 0x4c28dba (operator delete[](void*))
+--23103-- REDIR: 0x60d4a60 (__GI_strncmp) redirected to 0x4c2a800 (__GI_strncmp)
+--23103-- REDIR: 0x60d2b10 (__GI_strchr) redirected to 0x4c29e60 (__GI_strchr)
+--23103-- REDIR: 0x60dde40 (strchrnul) redirected to 0x4c2cd30 (strchrnul)
+==23103== 
+==23103== HEAP SUMMARY:
+==23103==     in use at exit: 18,649,255 bytes in 303,785 blocks
+==23103==   total heap usage: 11,434,548 allocs, 11,130,763 frees, 487,949,996 bytes allocated
+==23103== 
+==23103== Searching for pointers to 303,785 not-freed blocks
+==23103== Checked 1,343,880 bytes
+==23103== 
+==23103== LEAK SUMMARY:
+==23103==    definitely lost: 51,520 bytes in 529 blocks
+==23103==    indirectly lost: 18,222,249 bytes in 296,967 blocks
+==23103==      possibly lost: 181,738 bytes in 3,019 blocks
+==23103==    still reachable: 193,748 bytes in 3,270 blocks
+==23103==         suppressed: 0 bytes in 0 blocks
+==23103== Rerun with --leak-check=full to see details of leaked memory
+==23103== 
+==23103== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 2 from 2)
+--23103-- 
+--23103-- used_suppression:      2 glibc-2.5.x-on-SUSE-10.2-(PPC)-2a /usr/lib64/valgrind/default.supp:1286
+==23103== 
+==23103== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 2 from 2)

@@ -56,7 +56,7 @@ void get_bioisosteres(string data_file)
 	// rest the queries
 	vector < vector<sp_fragments> > final_set;
 	int count = 0;
-	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end();++i)
+	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
 	{
 		ROMol *mol = *i;
 		
@@ -68,7 +68,7 @@ void get_bioisosteres(string data_file)
 			section_match.push_back(ref_frag);
 
 		// for the remaining molecules, fragment and score
-		for(vector<ROMol*>::iterator j = mols.begin(); j!=mols.end();++j)
+		for(vector<ROMol*>::iterator j = i+1; j!=mols.end();++j)
 		{
 			ROMol* query = *j;
 			auto query_fragments = fragment_mol(*query);

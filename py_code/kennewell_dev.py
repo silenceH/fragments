@@ -4,6 +4,19 @@ from math import sqrt, exp
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 
+def get_mols_from_sdf_file(data_file, noHs):
+	## Method to return molecules for a given sdf data file
+	try:
+		data = os.environ['DATA']		## get data env
+		print "found data environment: " + data
+	except KeyError:
+		print "cannot find data environment variable"
+
+	if noHs:
+		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf')
+	else: 
+		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf',removeHs=False)
+	return [x for x in suppl if x is not None]
 
 def atom_coords(molecule,atom_no):
 	## returns a tuple of atom coordinates
@@ -124,8 +137,6 @@ def get_section_set(sections):
 	return grouped
 		
 
-
-
 def score_pairs_TD(atom1,atom2):
 	## scores two fragments using Tanimoto overlap of shape
 	## Note: shape calculated from 3D grid represnentation of mol
@@ -169,19 +180,7 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	## test : if true, does not write files 
 
 	## import mols from data_file 
-
-	try:
-		data = os.environ['DATA']		## get data env
-		print "found data environment: " + data
-	except KeyError:
-		print "cannot find data environment variable"
-
-	if noHs:
-		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf')
-	else: 
-		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf',removeHs=False)
-
-	mols = [x for x in suppl if x is not None]
+	mols = get_mols_from_sdf_file(data_file,noHs)
 	candidate_pairs = []
 	grouped = []
 	count = 0
@@ -339,13 +338,31 @@ def collect_bioisosteres_by_smiles(*args):
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	print mols_by_smiles
 
+def two_dim_similars(data_file,threshold):
+	mols = get_mols_from_sdf_file(data_file,True)
+	fragments = [] 
+	## obtain 1 dimensional list of fragments
+	for m in mols:
+		fragments.extend(get_fragments(m,True))
+	## obtain upper triangular boolean matrix based on similarity test
+	sim_matrix = []
+	for i in range(len(fragments)):
+		row = [are_similar(fragments[i],fragments[j],threshold) for j in range(len(fragments)) if j > i]
+		print row
+		sim_matrix.append(row)
+	pairs = [(x,y+1+x) for x in range(len(sim_matrix)) for y in range(len(sim_matrix[x])) if sim_matrix[x][y]]
+	print pairs
+	print "there are " + str(len(pairs)) + " pairs at threshold " + str(threshold) + "."
+	example = pairs[0]
+	for pair in pairs:
+		draw_mols_to_png([[fragments[pair[0]],fragments[pair[1]]]],"pair_" + str(pair),"")
 
 file_1 = 'P39900'
 file_2 = 'P56817'
 file_3 = 'P35557'
 file_4 = 'Q92731'
 
-#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = False)
+#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
 #get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False, test = False)
@@ -356,5 +373,5 @@ file_4 = 'Q92731'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-collect_bioisosteres_by_smiles(file_1,file_2)
-
+#collect_bioisosteres_by_smiles(file_1,file_2)
+two_dim_similars(file_1, 0.66666)
