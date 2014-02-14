@@ -1,26 +1,8 @@
 ## KENNEWELL DEV
-## TODO:: Coordinates list per fragment?? 
-
 import os
 from math import sqrt, exp
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
-
-class Fragment(object):
-	def __inti__(self, frag, coords = None, fp=None,smiles=None):
-		self.frag = frag
-
-		if coords is None:
-			self.coords = None
-		
-		if fp is None:
-			self.fp = None
-		self.fp = fp
-
-		if smiles is None:
-			self.smiles=None
-		self.smiles = smiles
-
 
 def get_mols_from_sdf_file(data_file, noHs):
 	## Method to return molecules for a given sdf data file
@@ -45,18 +27,15 @@ def get_distance(coords1,coords2):
 	## returns Euclidean distance between two 3D coordinates
 	return sqrt(pow((coords1[0]-coords2[0]),2)+pow((coords1[1]-coords2[1]),2)+pow((coords1[2]-coords2[2]),2))
 
-def are_similar(frag1,frag2,threshold):
-	## returns False if Tanimoto similarity is greater than threshold
-	if frag1.fp is None:
-		frag1.fp = AllChem.GetMorganFingerprint(mol1,2)
-	if frag2.fp is None:
-		frag2.fp = AllChem.GetMorganFingerprint(mol2,2)
-	tanimoto = DataStructs.TanimotoSimilarity(frag1.fp1,frag2.fp2)
+def are_similar(mol1,mol2,threshold):
+	## returns False if Tanimoto similarity is greater than 0.8
+	fp1 = AllChem.GetMorganFingerprint(mol1,2)
+	fp2 = AllChem.GetMorganFingerprint(mol2,2)
+	tanimoto = DataStructs.TanimotoSimilarity(fp1,fp2)
 	if tanimoto >= threshold:
 		return True 
 	else: 
 		return False
-
 def remove_2D_equivalents(mols):
 	## remove duplicate 2D mols
 	u = []
@@ -74,19 +53,27 @@ def write_mols_to_file(mols,title,directory):
 	for i in mols:
 		w = Chem.SDWriter(directory+title+str(mols.index(i))+'.sdf')
 		for mol in i: 
-			w.write(mol.frag)
+			w.write(mol)
 		w.flush()
 
-## TODO :: update this method for Fragment object
 def draw_mols_to_png(mols,title,directory):
 	## draw image
 	for i in mols:
 		for mol in i:
-			tmp = AllChem.Compute2DCoords(mol.frag)
+			tmp = AllChem.Compute2DCoords(mol)
 		img = Draw.MolsToGridImage(i)
 		img.save(directory+title+str(mols.index(i))+'.png')
 
-## TODO :: update this method for Fragment object
+
+### FUNCTION NOT USED ###
+def are_appropriate(mol1,mol2):
+	## check to make sure that the fragments are not similar and obey Ro3
+	flag = True
+	if Descriptors.MolWt(mol1) > 300. or Descriptors.MolWt(mol2) > 300.:
+		flag = False
+	return flag and not are_similar(mol1,mol2,0.8)
+##########################
+
 def get_all_coords(mol):
 	## return a list of coords for the 3D shape of a mol 
 	# define a constructor of position objects
@@ -127,7 +114,6 @@ def get_overlapping_fragments(mol):
 		test_mol_frags=temp_frags
 	return final_frags
 
-## TODO :: update this method for Fragment object
 def get_first_fragment_from_smarts(mol,smarts):
 	## fragments a molecule at first occurence of smarts 
 	## note that smarts is a RDMol Object
@@ -137,7 +123,6 @@ def get_first_fragment_from_smarts(mol,smarts):
 		frags = list(Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=[bonds[0]]),asMols=True))
 		return frags
 
-## TODO :: update this method for Fragment object
 def get_section_set(sections):
 	## function to collect different sections of candidate bioisosteres
 	grouped = []
@@ -152,7 +137,6 @@ def get_section_set(sections):
 	return grouped
 		
 
-## TODO :: update this method for Fragment object
 def score_pairs_TD(atom1,atom2):
 	## scores two fragments using Tanimoto overlap of shape
 	## Note: shape calculated from 3D grid represnentation of mol
@@ -162,7 +146,6 @@ def score_pairs_TD(atom1,atom2):
 	else:
 		return False
 
-## TODO :: update this method for Fragment object
 def score_pairs_kennewell(mol1,mol2):
 	## get number of atoms for each molecule
 	atoms_ref = mol1.GetNumAtoms()
@@ -187,7 +170,6 @@ def score_pairs_kennewell(mol1,mol2):
 	else: 
 		return False
 
-## TODO :: update this method for Fragment object
 def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	## gets bioisosteric pairs from an sdf file
 	## data_file : string of data file without .sdf
@@ -207,11 +189,13 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 		## set query data set to be the molecules that are not the reference
 		query_set = [x for x in mols if x is not mol]
 		## split the reference molecule by non ring single bonds
-		## create a fragment object for each fragment
-		ref_frag = [Fragment(x) for x in get_fragments(mol, brics)]
+		ref_frag = get_fragments(mol, brics)
 		## for each remaining ligand make it the query ligand
 		for q in query_set:
-				frags = [Fragment(x) for x in get_fragments(q, brics)]
+			if overlap:
+				frags = get_overlapping_fragments(q)
+			else:
+				frags = get_fragments(q, brics) 
 			for s in ref_frag:
 				section_pairs = [s]
 				for f in frags:
@@ -271,7 +255,6 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	print "Total pairs : " + str(count) + "\n"
 	return final_group
 
-## TODO :: update this method for Fragment object
 def collect_bioisosteres(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
@@ -310,7 +293,6 @@ def collect_bioisosteres(*args):
 	##draw_mols_to_png(final_collection,'final_collection',directory)
 	print final_collection
 
-## TODO :: update this method for Fragment object
 def collect_bioisosteres_by_smiles(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
@@ -356,7 +338,6 @@ def collect_bioisosteres_by_smiles(*args):
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	print mols_by_smiles
 
-## TODO :: update this method for Fragment object
 def two_dim_similars(data_file,threshold):
 	mols = get_mols_from_sdf_file(data_file,True)
 	fragments = [] 
