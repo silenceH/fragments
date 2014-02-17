@@ -7,7 +7,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 
 class Fragment(object):
-	def __inti__(self, frag, coords = None, fp=None,smiles=None):
+	def __init__(self, frag, coords = None, fp=None,smiles=None):
 		self.frag = frag
 
 		if coords is None:
@@ -48,10 +48,10 @@ def get_distance(coords1,coords2):
 def are_similar(frag1,frag2,threshold):
 	## returns False if Tanimoto similarity is greater than threshold
 	if frag1.fp is None:
-		frag1.fp = AllChem.GetMorganFingerprint(mol1,2)
+		frag1.fp = AllChem.GetMorganFingerprint(frag1.frag,2)
 	if frag2.fp is None:
-		frag2.fp = AllChem.GetMorganFingerprint(mol2,2)
-	tanimoto = DataStructs.TanimotoSimilarity(frag1.fp1,frag2.fp2)
+		frag2.fp = AllChem.GetMorganFingerprint(frag2.frag,2)
+	tanimoto = DataStructs.TanimotoSimilarity(frag1.fp,frag2.fp)
 	if tanimoto >= threshold:
 		return True 
 	else: 
@@ -99,14 +99,14 @@ def get_fragments(mol,brics):
 	## returns a list of non overlapping fragments.
 	## if brics == True then returns the BRICS fragments
 	if brics: 
-		return Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol),asMols=True)	## BRICS bonds
+		return [Fragment(x) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol),asMols=True)]	## BRICS bonds
 	else: 
 		## bond_smarts = Chem.MolFromSmarts("[*]!@!#!=[*]")	## single bonds
 		## bond_smarts = Chem.MolFromSmarts('[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]') ## simple rotatable bond smarts
 		bond_smarts = Chem.MolFromSmarts('[!$([NH]!@C(=O))&!D1&!$(*#*)]-&!@[!$([NH]!@C(=O))&!D1&!$(*#*)]') ## rotatable bonds
 		bonds = mol.GetSubstructMatches(bond_smarts)
 		bonds = [((x,y),(0,0)) for x,y in bonds]
-		return Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=bonds),asMols=True)
+		return [Fragment(x) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=bonds),asMols=True)]
 
 def get_overlapping_fragments(mol):
 	## returbs a list of overlapping fragments using a SMARTS pattern for a particular type of bond
@@ -162,24 +162,16 @@ def score_pairs_TD(atom1,atom2):
 	else:
 		return False
 
-## TODO :: update this method for Fragment object
 def score_pairs_kennewell(mol1,mol2):
 	## get number of atoms for each molecule
-	atoms_ref = mol1.GetNumAtoms()
-	atoms_f = mol2.GetNumAtoms()
+	frag1, frag2 = mol1.frag,mol2.frag
+	atoms_ref = frag1.GetNumAtoms()
+	atoms_f = frag2.GetNumAtoms()
 	## get coordinates for the reference molecule
-	ref_atoms = get_all_coords(mol1)
+	ref_atoms = get_all_coords(frag1)
 	section_score = []
-	######################
-	## visual debugging ##
-	#v = PyMol.MolViewer()
-	#v.DeleteAll()
-	#v.ShowMol(mol1)
-	#v.ShowMol(mol2,showOnly=False,name='other')
-	######################
-	## create a list of all the distances from atom xyz to the fragment atoms
 	for section_atom in ref_atoms:
-		dist = [get_distance(section_atom,frag_atom) for frag_atom in get_all_coords(mol2)]
+		dist = [get_distance(section_atom,frag_atom) for frag_atom in get_all_coords(frag2)]
 		section_score.append(sum([exp(-pow(d,2)) for d in dist]))
 	av_score = sum(section_score)*(2./(atoms_f+atoms_ref))
 	if av_score>0.7:
@@ -202,16 +194,16 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	candidate_pairs = []
 	grouped = []
 	count = 0
+	## create a list of fragment objects here
+	mols = [get_fragments(mol,brics) for mol in mols]	
 	## for a reference molecule mol in mols
 	for mol in mols:
 		## set query data set to be the molecules that are not the reference
 		query_set = [x for x in mols if x is not mol]
-		## split the reference molecule by non ring single bonds
-		## create a fragment object for each fragment
-		ref_frag = [Fragment(x) for x in get_fragments(mol, brics)]
+		ref_frag = mol 			# a list of Fragment objects
 		## for each remaining ligand make it the query ligand
 		for q in query_set:
-				frags = [Fragment(x) for x in get_fragments(q, brics)]
+			frags = q
 			for s in ref_frag:
 				section_pairs = [s]
 				for f in frags:
@@ -393,4 +385,5 @@ file_4 = 'Q92731'
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
 #collect_bioisosteres_by_smiles(file_1,file_2)
-two_dim_similars(file_1, 0.66666)
+#two_dim_similars(file_1, 0.66666)
+
