@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <stdlib.h> // exit getenv
 
 #include <GraphMol/ROMol.h>
 #include <GraphMol/Conformer.h>
@@ -46,7 +47,15 @@ vector<sp_fragments> fragment_mol(ROMol& mol)
  */
 vector<ROMol*> getMols(string file_name)
 {
-	string fname = string("/home/matthew/data/validation_overlays/") +file_name + string(".sdf");
+	char* data = getenv("DATA");
+	if (data==NULL)
+	{
+		cerr << "cannot find data environment" << endl;
+		exit(EXIT_FAILURE);
+	}
+	
+
+	string fname = data + string("validation_overlays/") +file_name + string(".sdf");
 	SDMolSupplier suppl(fname,true,false);	// sanitize mols and keep H atoms
 	vector<ROMol*> mols;
 	while(!suppl.atEnd())
