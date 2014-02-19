@@ -30,6 +30,16 @@ using namespace std;
 
 typedef boost::shared_ptr<ROMol> sp_fragments;
 
+class Fragment
+{
+	// insert code
+	public:
+		sp_fragments frag;
+		string smiles;
+		sp_fingerprint;
+
+};
+
 /*
  * Method to fragment a mol into BRICS fragments
  */
@@ -75,7 +85,7 @@ int main()
 	// rest the queries
 	
 	int count = 0;
-	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end();++i)
+	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
 	{
 		ROMol *mol = *i;
 		//cout <<"size of vector: " << mols.size() << endl;
@@ -83,7 +93,7 @@ int main()
 		auto ref_fragments = fragment_mol(*mol); 	// as mol is a smart pointer we use *mol
 
 		// for the remaining molecules, fragment and score
-		for(vector<ROMol*>::iterator j = mols.begin(); j!=mols.end();++j)
+		for(vector<ROMol*>::iterator j = i + 1; j!=mols.end();++j)
 		{
 			if(*j != mol)
 			{
