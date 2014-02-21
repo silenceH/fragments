@@ -79,10 +79,13 @@ def write_mols_to_file(mols,title,directory):
 
 ## TODO :: update this method for Fragment object
 def draw_mols_to_png(mols,title,directory):
+	## test for Fragment object
+	if isinstance(mols[0][0],Fragment):
+		mols = [[mol.frag for mol in group] for group in mols]
 	## draw image
 	for i in mols:
 		for mol in i:
-			tmp = AllChem.Compute2DCoords(mol.frag)
+			tmp = AllChem.Compute2DCoords(mol)
 		img = Draw.MolsToGridImage(i)
 		img.save(directory+title+str(mols.index(i))+'.png')
 
@@ -179,7 +182,6 @@ def score_pairs_kennewell(mol1,mol2):
 	else: 
 		return False
 
-## TODO :: update this method for Fragment object
 def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	## gets bioisosteric pairs from an sdf file
 	## data_file : string of data file without .sdf
@@ -263,33 +265,30 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	print "Total pairs : " + str(count) + "\n"
 	return final_group
 
-## TODO :: update this method for Fragment object
 def collect_bioisosteres(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
-#	coll_fps = [[AllChem.GetMorganFingerprint(collection[i][j],2) for j in range(len(collection[i]))] for i in range(len(collection))]
 	final_collection = [collection[0]]
 	collection= collection[1:]
 	print " number of groups to compare: " + str(len(collection)+ 1)
 	print "comparing..."
 	while len(collection) > 0: 
 		count = 0
+		## compares each fragment in the group to those in the final collection 
 		q_frags = collection[0]
 		for ref_frags in final_collection:
 			match = False
 			for ref,q in ((m1,m2) for m1 in ref_frags for m2 in q_frags):
-				#if DataStructs.TanimotoSimilarity(ref,q) == 1.0:
+				count += 1
 				if are_similar(ref,q,1.):
 					match = True
 					break
 			if match:
 				ref_frags.extend(q_frags)
-				count += 1
 			else:
 				final_collection.append(q_frags)
 		collection= collection[1:]
-		print "groups extended: " + str(count)
-		print "length of final collection: " + str(len(final_collection))
+		print "comparisons: " + str(count)
 		print "comparing... \n"
 
 	##directory = '../test_output/compared_results/' 
@@ -302,19 +301,18 @@ def collect_bioisosteres(*args):
 	##draw_mols_to_png(final_collection,'final_collection',directory)
 	print final_collection
 
-## TODO :: update this method for Fragment object
 def collect_bioisosteres_by_smiles(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
 	# create a dictionary of the smiles with mol objects as values
 	mols_by_smiles = dict()
 	for mol in [collection[i][j] for i in range(len(collection)) for j in range(len(collection[i]))]:
-		smi = Chem.MolToSmiles(mol)
-		if smi in mols_by_smiles:
-			mols_by_smiles[smi].append(mol)
+		mol.smiles = Chem.MolToSmiles(mol.frag)
+		if mol.smiles in mols_by_smiles:
+			mols_by_smiles[mol.smiles].append(mol)
 		else: 
-			mols_by_smiles[smi] = [mol]
-	smiles = [[Chem.MolToSmiles(collection[i][j]) for j in range(len(collection[i]))] for i in range(len(collection))]
+			mols_by_smiles[mol.smiles] = [mol]
+	smiles = [[collection[i][j].smiles for j in range(len(collection[i]))] for i in range(len(collection))]
 	final_collection = [set(smiles[0])]
 	smiles= smiles[1:]
 	print " number of groups to compare: " + str(len(collection)+ 1)
@@ -346,9 +344,8 @@ def collect_bioisosteres_by_smiles(*args):
 	print "total number of candidates : " +  str(len(final_collection))
 	final_collection = [[Chem.MolFromSmiles(mol) for mol in smi] for smi in final_collection]
 	draw_mols_to_png(final_collection,'final_collection',directory)
-	print mols_by_smiles
+	return mols_by_smiles
 
-## TODO :: update this method for Fragment object
 def two_dim_similars(data_file,threshold):
 	mols = get_mols_from_sdf_file(data_file,True)
 	fragments = [] 
@@ -359,14 +356,17 @@ def two_dim_similars(data_file,threshold):
 	sim_matrix = []
 	for i in range(len(fragments)):
 		row = [are_similar(fragments[i],fragments[j],threshold) for j in range(len(fragments)) if j > i]
-		print row
 		sim_matrix.append(row)
 	pairs = [(x,y+1+x) for x in range(len(sim_matrix)) for y in range(len(sim_matrix[x])) if sim_matrix[x][y]]
-	print pairs
 	print "there are " + str(len(pairs)) + " pairs at threshold " + str(threshold) + "."
-	example = pairs[0]
+	directory = '../test_output/compared_results/two_dim_pairs/' 
+	try: 
+		os.makedirs(directory)
+		print "created new directory: " + directory
+	except OSError:
+		print directory + " already exists."	
 	for pair in pairs:
-		draw_mols_to_png([[fragments[pair[0]],fragments[pair[1]]]],"pair_" + str(pair),"")
+		draw_mols_to_png([[fragments[pair[0]],fragments[pair[1]]]],"pair_" + str(pair),directory)
 
 file_1 = 'P39900'
 file_2 = 'P56817'
@@ -384,6 +384,6 @@ file_4 = 'Q92731'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-#collect_bioisosteres_by_smiles(file_1,file_2)
-#two_dim_similars(file_1, 0.66666)
+collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
+two_dim_similars(file_1, 1)
 
