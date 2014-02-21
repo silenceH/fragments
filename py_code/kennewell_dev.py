@@ -77,7 +77,6 @@ def write_mols_to_file(mols,title,directory):
 			w.write(mol.frag)
 		w.flush()
 
-## TODO :: update this method for Fragment object
 def draw_mols_to_png(mols,title,directory):
 	## test for Fragment object
 	if isinstance(mols[0][0],Fragment):
@@ -89,7 +88,6 @@ def draw_mols_to_png(mols,title,directory):
 		img = Draw.MolsToGridImage(i)
 		img.save(directory+title+str(mols.index(i))+'.png')
 
-## TODO :: update this method for Fragment object
 def get_all_coords(mol):
 	## return a list of coords for the 3D shape of a mol 
 	# define a constructor of position objects
@@ -301,6 +299,8 @@ def collect_bioisosteres(*args):
 	##draw_mols_to_png(final_collection,'final_collection',directory)
 	print final_collection
 
+
+## TODO:: NEED A MUCH BETTER ALGORITHM FOR THIS!!! 
 def collect_bioisosteres_by_smiles(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
@@ -384,6 +384,7 @@ file_4 = 'Q92731'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
-two_dim_similars(file_1, 1)
+#collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
+collect_bioisosteres(file_1)
+#two_dim_similars(file_1, 1)
 
