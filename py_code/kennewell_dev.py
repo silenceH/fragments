@@ -180,6 +180,14 @@ def score_pairs_kennewell(mol1,mol2):
 	else: 
 		return False
 
+def get_av_similarity(mols):
+	total_sim = 0
+	num_mols = len(mols)
+	for i in range(num_mols):
+		row = (DataStructs.TanimotoSimilarity(mols[i].fp,mols[j].fp) for j in range(num_mols) if j > i)
+		total_sim += sum(row)
+	return total_sim/num_mols
+
 def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	## gets bioisosteric pairs from an sdf file
 	## data_file : string of data file without .sdf
@@ -247,20 +255,29 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 		print directory + " already exists."	
 	if not test: 
 		# write groups to file
-		write_mols_to_file(grouped,'group',directory)
 		write_mols_to_file(final_group,'final_group',directory)
 		
 		# draw mols to png
-		draw_mols_to_png(grouped,'group',directory)
 		draw_mols_to_png(final_group,'final_group',directory)
 	
-	print "Tanimoto cut off is 1."
-	if overlap: print "Overlapping fragments."
-	if noHs: print "Hydrogen's removed."
-	if kennewell: print "Kennewell scoring"
-	print "Number of groups: " + str(len(grouped))
-	print "Number of sections: " + str(len(candidate_pairs))					
-	print "Total pairs : " + str(count) + "\n"
+	## produce statistics and write to file ## 
+	f = open(directory+"stats",'w')
+
+	total_sim_of_groups = 0
+	f.write("SUMMARY STATISTICS FOR OVERLAY " + data_file + "\n")
+	f.write("Tanimoto cut off for similarity is 1.\n")
+	if overlap: f.write("Overlapping fragments.\n")
+	if noHs: f.write("Hydrogen's removed.\n")
+	if kennewell: f.write("Kennewell scoring\n")
+	f.write("Number of fragments: " + str(sum([len(m) for m in mols])) + "\n")
+	f.write("Number of identified pairs : " + str(count) + "\n")
+	f.write("Number of overlaid sections: " + str(len(final_group)) + "\n")
+	f.write("group \tfrags \tav similarity\n")
+	for i in range(len(final_group)):
+		av_sim = get_av_similarity(final_group[i])
+		f.write(str(i+1) + "\t" + str(len(final_group[i])) + "\t" + str(av_sim)+"\n")
+		total_sim_of_groups += av_sim
+	f.write("\naverage similarity over the group: " + str(total_sim_of_groups/len(final_group)) + "\n\n")
 	return final_group
 
 def collect_bioisosteres(*args):
@@ -302,7 +319,7 @@ def collect_bioisosteres(*args):
 
 ## TODO:: NEED A MUCH BETTER ALGORITHM FOR THIS!!! 
 def collect_bioisosteres_by_smiles(*args):
-	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
+	coll = [get_bioisosteres(data_file,True,True,True,False,False) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
 	# create a dictionary of the smiles with mol objects as values
 	mols_by_smiles = dict()
@@ -385,6 +402,7 @@ file_4 = 'Q92731'
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
 #collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
-collect_bioisosteres(file_1)
+#collect_bioisosteres(file_1)
+# 
 #two_dim_similars(file_1, 1)
 
