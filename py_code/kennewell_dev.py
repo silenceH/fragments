@@ -1,5 +1,4 @@
 ## KENNEWELL DEV
-## TODO:: Coordinates list per fragment?? 
 
 import os
 from math import sqrt, exp
@@ -153,11 +152,10 @@ def get_section_set(sections):
 	return grouped
 		
 
-## TODO :: update this method for Fragment object
 def score_pairs_TD(atom1,atom2):
 	## scores two fragments using Tanimoto overlap of shape
 	## Note: shape calculated from 3D grid represnentation of mol
-	score = rdShapeHelpers.ShapeTanimotoDist(atom1,atom2)
+	score = rdShapeHelpers.ShapeTanimotoDist(atom1.frag,atom2.frag)
 	if score < 0.3: 
 		return True
 	else:
@@ -369,21 +367,38 @@ def two_dim_similars(data_file,threshold):
 	## obtain 1 dimensional list of fragments
 	for m in mols:
 		fragments.extend(get_fragments(m,True))
+	
 	## obtain upper triangular boolean matrix based on similarity test
 	sim_matrix = []
 	for i in range(len(fragments)):
-		row = [are_similar(fragments[i],fragments[j],threshold) for j in range(len(fragments)) if j > i]
+		## are similar at a threshold but not identical
+		row = [are_similar(fragments[i],fragments[j],threshold) and not are_similar(fragments[i],fragments[j],1) for j in range(len(fragments)) if j > i]
 		sim_matrix.append(row)
 	pairs = [(x,y+1+x) for x in range(len(sim_matrix)) for y in range(len(sim_matrix[x])) if sim_matrix[x][y]]
-	print "there are " + str(len(pairs)) + " pairs at threshold " + str(threshold) + "."
+	print "there are " + str(len(pairs)) + " pairs at threshold " + str(threshold) + " that are not identical."
+	#print pairs TODO REMOVED FOR DEBUGGING >> UNCOMMENT WHEN FINISHED
+	final = []
+	for pair in pairs:
+		for i in range(2):
+			final.append(fragments[pair[i]])
+	ref = final.pop()
+	unique_pairs = [ref]
+	while len(final)>0:
+		ref = final.pop()
+		for frag in unique_pairs:
+			if are_similar(frag,ref,1):
+				break
+			else:
+				unique_pairs.append(ref)
+	print final
+	print len(unique_pairs)
 	directory = '../test_output/compared_results/two_dim_pairs/' 
 	try: 
 		os.makedirs(directory)
 		print "created new directory: " + directory
 	except OSError:
 		print directory + " already exists."	
-	for pair in pairs:
-		draw_mols_to_png([[fragments[pair[0]],fragments[pair[1]]]],"pair_" + str(pair),directory)
+	draw_mols_to_png([unique_pairs],data_file,directory)
 
 file_1 = 'P39900'
 file_2 = 'P56817'
@@ -404,5 +419,5 @@ file_4 = 'Q92731'
 #collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
 #collect_bioisosteres(file_1)
 # 
-#two_dim_similars(file_1, 1)
+two_dim_similars(file_1, .6)
 
