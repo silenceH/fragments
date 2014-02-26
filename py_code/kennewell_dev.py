@@ -376,22 +376,24 @@ def two_dim_similars(data_file,threshold):
 		sim_matrix.append(row)
 	pairs = [(x,y+1+x) for x in range(len(sim_matrix)) for y in range(len(sim_matrix[x])) if sim_matrix[x][y]]
 	print "there are " + str(len(pairs)) + " pairs at threshold " + str(threshold) + " that are not identical."
-	#print pairs TODO REMOVED FOR DEBUGGING >> UNCOMMENT WHEN FINISHED
 	final = []
 	for pair in pairs:
 		for i in range(2):
 			final.append(fragments[pair[i]])
-	ref = final.pop()
-	unique_pairs = [ref]
-	while len(final)>0:
-		ref = final.pop()
-		for frag in unique_pairs:
-			if are_similar(frag,ref,1):
-				break
-			else:
-				unique_pairs.append(ref)
-	print final
-	print len(unique_pairs)
+	unique_pairs = [final[0]]
+	for ref in final:
+		ref_is_unique = True
+		for q in unique_pairs:
+			if are_similar(ref,q,1):
+				ref_is_unique = False
+		if ref_is_unique:
+			unique_pairs.append(ref)
+	print "of which there are " + str(len(unique_pairs)) + " unique."
+	print "The smiles are: "
+	for mol in unique_pairs:
+		if mol.smiles is None:
+			mol.smiles = Chem.MolToSmiles(mol.frag)
+		print mol.smiles
 	directory = '../test_output/compared_results/two_dim_pairs/' 
 	try: 
 		os.makedirs(directory)
@@ -419,5 +421,6 @@ file_4 = 'Q92731'
 #collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
 #collect_bioisosteres(file_1)
 # 
-two_dim_similars(file_1, .6)
+two_dim_similars(file_1, 0.7)
 
+## TODO:: ARE THE SMILES OR TANIMOTO EFFECTED BY THE DUMMY ATOM FROM THE FRAGMENTATION???
