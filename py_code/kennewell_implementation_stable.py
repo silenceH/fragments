@@ -278,6 +278,7 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	f.write("\naverage similarity over the group: " + str(total_sim_of_groups/len(final_group)) + "\n\n")
 	return final_group
 
+## TODO:: NEED A MUCH BETTER ALGORITHM FOR THIS!!! 
 def collect_bioisosteres(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
