@@ -309,15 +309,15 @@ def collect_bioisosteres(*args):
 		print "length final collection: " + str(len(final_collection))
 		print "comparing... \n"
 
-	##directory = '../test_output/compared_results/' 
-	##try: 
-	##	os.makedirs(directory)
-	##	print "created new directory: " + directory
-	##except OSError:
-	##	print directory + " already exists."	
-	##write_mols_to_file(final_collection,'final_collection',directory)
-	##draw_mols_to_png(final_collection,'final_collection',directory)
-	print final_collection
+	directory = '../test_output/compared_results/' 
+	try: 
+		os.makedirs(directory)
+		print "created new directory: " + directory
+	except OSError:
+		print directory + " already exists."	
+	write_mols_to_file(final_collection,'final_collection',directory)
+	draw_mols_to_png(final_collection,'final_collection',directory)
+	return final_collection
 
 
 def collect_bioisosteres_by_smiles(*args):
@@ -406,10 +406,16 @@ def two_dim_similars(data_file,threshold):
 		print directory + " already exists."	
 	draw_mols_to_png([unique_pairs],data_file,directory)
 
-file_1 = 'P39900'
+file_1 = 'P39900' 
 file_2 = 'P56817'
 file_3 = 'P35557'
 file_4 = 'Q92731'
+file_5 = 'P25440'
+file_6 = 'P00918'
+file_7 = 'P0AE18'
+file_8 = 'P43235'
+file_9 = 'Q00511'
+file_10 = 'P16184'
 
 #get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
 #get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
@@ -422,8 +428,8 @@ file_4 = 'Q92731'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
-collect_bioisosteres(file_1,file_2,file_3,file_4)
+##collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
+collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 # 
 #two_dim_similars(file_1, 0.7)
 
