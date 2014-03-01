@@ -29,14 +29,13 @@ using namespace RDKit;
 using namespace std;
 
 typedef boost::shared_ptr<ROMol> sp_fragments;
-
 class Fragment
 {
 	// insert code
 	public:
 		sp_fragments frag;
 		string smiles;
-		sp_fingerprint;
+		ExplicitBitVect *fp;
 
 };
 
@@ -80,10 +79,13 @@ vector<ROMol*> getMols(string file_name)
 int main()
 {
 	// get the molecules as a vector of pointers
-	auto mols = getMols("P39900");
+	//auto mols = getMols("P39900");
 	// for each mol in mols, make the mol the reference and the 
 	// rest the queries
 	
+	char* data = getenv("DATA");
+	string fname = data + string("validation_overlays/") +"P39900" + string(".sdf");
+	cout << fname << endl;
 	int count = 0;
 	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
 	{
@@ -171,3 +173,4 @@ int main()
 // for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
 // for(vector<ROMol*>::iterator j = i+1; j!=mols.end();++j)
 // TODO:: optimise loops?? 
+// TODO:: delete fingerprints
