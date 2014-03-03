@@ -21,7 +21,7 @@ def av_sim(data_file):
 	fps = [Chem.GetMorganFingerprint(m,2) for m in ms]
 
 	sim = [[DataStructs.TanimotoSimilarity(fps[i],fps[j]) for i in range(len(fps))] for j in range(len(fps))]
-
+ 	#print sim
 	sumT = 0;
 	count = 0;
 	for i in range(len(fps)):
@@ -29,12 +29,17 @@ def av_sim(data_file):
 			sumT += sim[i][j]
 			count += 1
 
-	average = (sumT)/(count)
-	print "average tanimoto similarity is " + str(average)
+	average = (sumT-len(fps))/(count-len(fps))
+	print "average:  " + str(average) + "\tnumber: " + str(len(fps)) 
 	return average
 
 p00730 = av_sim('P00730')
-p42574 = av_sim('P42574')
-print "my attempt : " + str(p42574/p00730)
-
-print "paper : " + str(0.440/0.588)
+print "paper: " + str(0.588) + "\t number: " + str(8)
+p27487 = av_sim('P27487')
+print "paper: " + str(0.128) + "\t number: " + str(39)
+p00760 = av_sim('P00760')
+print "paper: " + str(0.317) + "\t number: " + str(22)
+p35968 = av_sim('P35968')
+print "paper: " + str(0.151) + "\t number: " + str(8)
+q04771 = av_sim('Q04771')
+print "paper : " + str(0.255) + "\t number: " + str(5)

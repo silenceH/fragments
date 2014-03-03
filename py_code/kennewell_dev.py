@@ -371,6 +371,7 @@ def collect_bioisosteres_by_smiles(*args):
 	f.write("group,number,\n")
 	for i in range(len(final_collection)):
 		f.write(str(i+1) + "," + str(len(final_collection[i]))+",\n")
+		print str(i) + "\t" + str(len(final_collection[i]))
 	f.close()
 	print "statistics written"
 	final_collection = [[Chem.MolFromSmiles(mol) for mol in smi] for smi in final_collection]
@@ -434,7 +435,7 @@ file_8 = 'P43235'
 file_9 = 'Q00511'
 file_10 = 'P16184'
 
-get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
+#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
 #get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False, test = False)
@@ -445,7 +446,7 @@ get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = Fals
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-#collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 #collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 # 
 #two_dim_similars(file_1, 0.7)
