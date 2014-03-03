@@ -203,10 +203,10 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	## create a list of fragment objects here
 	mols = [get_fragments(mol,brics) for mol in mols]	
 	## for a reference molecule mol in mols
-	for mol in mols:
+	for i in range(len(mols)):
 		## set query data set to be the molecules that are not the reference
-		query_set = [x for x in mols if x is not mol]
-		ref_frag = mol 			# a list of Fragment objects
+		ref_frag = mols[i] 			# a list of Fragment objects
+		query_set = mols[i:]
 		## for each remaining ligand make it the query ligand
 		for q in query_set:
 			frags = q
@@ -260,6 +260,8 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	
 	## produce statistics and write to file ## 
 	f = open(directory+"stats",'w')
+	## potential stats
+	## number of fragments with overlapping scheme?? 
 
 	total_sim_of_groups = 0
 	f.write("SUMMARY STATISTICS FOR OVERLAY " + data_file + "\n")
@@ -360,9 +362,20 @@ def collect_bioisosteres_by_smiles(*args):
 		print "created new directory: " + directory
 	except OSError:
 		print directory + " already exists."	
-	print "total number of candidates : " +  str(len(final_collection))
+	## write to file
+	f = open(directory+"stats.csv",'w')
+	f.write("files,\n")
+	for i in args:
+		f.write(i + ",\n")
+	f.write("total," +  str(len(final_collection))+",\n")
+	f.write("group,number,\n")
+	for i in range(len(final_collection)):
+		f.write(str(i+1) + "," + str(len(final_collection[i]))+",\n")
+	f.close()
+	print "statistics written"
 	final_collection = [[Chem.MolFromSmiles(mol) for mol in smi] for smi in final_collection]
 	draw_mols_to_png(final_collection,'final_collection',directory)
+	print "pictures drawn"
 	return mols_by_smiles
 
 def two_dim_similars(data_file,threshold):
@@ -379,32 +392,36 @@ def two_dim_similars(data_file,threshold):
 		row = [are_similar(fragments[i],fragments[j],threshold) and not are_similar(fragments[i],fragments[j],1) for j in range(len(fragments)) if j > i]
 		sim_matrix.append(row)
 	pairs = [(x,y+1+x) for x in range(len(sim_matrix)) for y in range(len(sim_matrix[x])) if sim_matrix[x][y]]
+	print data_file
 	print "there are " + str(len(pairs)) + " pairs at threshold " + str(threshold) + " that are not identical."
 	final = []
 	for pair in pairs:
 		for i in range(2):
 			final.append(fragments[pair[i]])
-	unique_pairs = [final[0]]
-	for ref in final:
-		ref_is_unique = True
-		for q in unique_pairs:
-			if are_similar(ref,q,1):
-				ref_is_unique = False
-		if ref_is_unique:
-			unique_pairs.append(ref)
-	print "of which there are " + str(len(unique_pairs)) + " unique."
-	print "The smiles are: "
-	for mol in unique_pairs:
-		if mol.smiles is None:
-			mol.smiles = Chem.MolToSmiles(mol.frag)
-		print mol.smiles
-	directory = '../test_output/compared_results/two_dim_pairs/' 
-	try: 
-		os.makedirs(directory)
-		print "created new directory: " + directory
-	except OSError:
-		print directory + " already exists."	
-	draw_mols_to_png([unique_pairs],data_file,directory)
+	try:	
+		unique_pairs = [final[0]]
+		for ref in final:
+			ref_is_unique = True
+			for q in unique_pairs:
+				if are_similar(ref,q,1):
+					ref_is_unique = False
+			if ref_is_unique:
+				unique_pairs.append(ref)
+		print "of which there are " + str(len(unique_pairs)) + " unique."
+		print "The smiles are: "
+		for mol in unique_pairs:
+			if mol.smiles is None:
+				mol.smiles = Chem.MolToSmiles(mol.frag)
+			print mol.smiles
+		directory = '../test_output/compared_results/two_dim_pairs/' 
+		try: 
+			os.makedirs(directory)
+			print "created new directory: " + directory
+		except OSError:
+			print directory + " already exists."	
+		draw_mols_to_png([unique_pairs],data_file,directory)
+	except IndexError:
+		print "EXIT PROGRAMME!"
 
 file_1 = 'P39900' 
 file_2 = 'P56817'
@@ -417,7 +434,7 @@ file_8 = 'P43235'
 file_9 = 'Q00511'
 file_10 = 'P16184'
 
-#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
+get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
 #get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False, test = False)
@@ -428,10 +445,19 @@ file_10 = 'P16184'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-##collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4)
-collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+#collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+#collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 # 
 #two_dim_similars(file_1, 0.7)
+#two_dim_similars(file_2, 0.7)
+#two_dim_similars(file_3, 0.7)
+#two_dim_similars(file_4, 0.7)
+#two_dim_similars(file_5, 0.7)
+#two_dim_similars(file_6, 0.7)
+#two_dim_similars(file_7, 0.7)
+#two_dim_similars(file_8, 0.7)
+#two_dim_similars(file_9, 0.7)
+#two_dim_similars(file_10, 0.7)
 
 ## TODO:: ARE THE SMILES OR TANIMOTO EFFECTED BY THE DUMMY ATOM FROM THE FRAGMENTATION???
 ## TODO:: SPLIT OVER FILES RELATING TO TASK AND LEAVE ONE TEST FILE TO TEST CODE
