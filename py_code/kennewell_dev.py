@@ -304,19 +304,19 @@ def collect_bioisosteres(*args):
 			if match:
 				ref_frags.extend(q_frags)
 				not_extended = False
-				print "one extended"
 		if not_extended:
 			final_collection.append(q_frags)
-			print "new appended"
 		collection= collection[1:]
-		print "comparisons: " + str(count)
-		print "length final collection: " + str(len(final_collection))
-		print "comparing... \n"
+		#####################
+		## test code
+		##print "comparisons: " + str(count)
+		##print "length final collection: " + str(len(final_collection))
+		##print "comparing... \n"
 	for i in final_collection:
 		remove_2D_equivalents(i)
 	lig_per_group = [set([frag.ligand for frag in group]) for group in final_collection]
-	for i in range(len(final_collection)):
-		print str(i) + "\t" + str(len(final_collection[i])) + "\t" + str(list(lig_per_group[i]))
+	#for i in range(len(final_collection)):
+		#print str(i) + "\t" + str(len(final_collection[i])) + "\t" + str(list(lig_per_group[i]))
 	directory = '../test_output/compared_results/' 
 	try: 
 		os.makedirs(directory)
@@ -361,10 +361,11 @@ def collect_bioisosteres_by_smiles(*args):
 			number_of_files.append(1)
 		smiles= smiles[1:]
 		it += 1
-		print "groups extended: " + str(count)
-		print "length of final collection: " + str(len(final_collection))
-		print "number of iterations: " + str(it)
-		print "comparing... \n"
+		## testing code 
+		## print "groups extended: " + str(count)
+		## print "length of final collection: " + str(len(final_collection))
+		## print "number of iterations: " + str(it)
+		## print "comparing... \n"
 	directory = '../test_output/compared_results/' 
 	try: 
 		os.makedirs(directory)
@@ -380,12 +381,9 @@ def collect_bioisosteres_by_smiles(*args):
 	f.write("group,number,\n")
 	for i in range(len(final_collection)):
 		f.write(str(i+1) + "," + str(len(final_collection[i]))+",\n")
-		print str(i) + "\t" + str(len(final_collection[i])) + "\t" + str(number_of_files[i])
 	f.close()
 	print "statistics written"
-	for i in list(final_collection):
-		print i
-	final_collection = [[Chem.MolFromSmiles(mol) for mol in list(smi)] for smi in final_collection]
+	final_collection = [[Fragment(Chem.MolFromSmiles(mol),'final') for mol in list(smi)] for smi in final_collection]
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	print "pictures drawn"
 	return final_collection
@@ -434,6 +432,27 @@ def two_dim_similars(data_file,threshold):
 		draw_mols_to_png([unique_pairs],data_file,directory)
 	except IndexError:
 		print "EXIT PROGRAMME!"
+		return
+	## get pairs from files 1 to 10 
+	test_set = collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+	valid_groups = []
+	for i in xrange(len(test_set)):
+		group = test_set[i]
+		all_in_group = True
+		count = 0	
+		for q in unique_pairs:
+			mol_in_group = False
+			for ref in group:
+				if are_similar(ref,q,1):
+					mol_in_group = True
+			all_in_group = all_in_group and mol_in_group
+		if all_in_group:
+				valid_groups.append(i+1)
+	f = open(directory+data_file+"_valid groups",'w')
+	f.write("valid groups: \n") 
+	for group in valid_groups:
+		f.write(str(group)+"\n")
+	print "\n\n\n"
 
 file_1 = 'P39900' 
 file_2 = 'P56817'
@@ -461,15 +480,15 @@ file_10 = 'P16184'
 #collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 # 
 two_dim_similars(file_1, 0.7)
-#two_dim_similars(file_2, 0.7)
-#two_dim_similars(file_3, 0.7)
-#two_dim_similars(file_4, 0.7)
-#two_dim_similars(file_5, 0.7)
-#two_dim_similars(file_6, 0.7)
-#two_dim_similars(file_7, 0.7)
-#two_dim_similars(file_8, 0.7)
-#two_dim_similars(file_9, 0.7)
-#two_dim_similars(file_10, 0.7)
+two_dim_similars(file_2, 0.7)
+two_dim_similars(file_3, 0.7)
+two_dim_similars(file_4, 0.7)
+two_dim_similars(file_5, 0.7)
+two_dim_similars(file_6, 0.7)
+two_dim_similars(file_7, 0.7)
+two_dim_similars(file_8, 0.7)
+two_dim_similars(file_9, 0.7)
+two_dim_similars(file_10, 0.7)
 
 ## TODO:: ARE THE SMILES OR TANIMOTO EFFECTED BY THE DUMMY ATOM FROM THE FRAGMENTATION???
 ## TODO:: SPLIT OVER FILES RELATING TO TASK AND LEAVE ONE TEST FILE TO TEST CODE
