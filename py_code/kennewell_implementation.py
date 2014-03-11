@@ -6,8 +6,10 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 
 class Fragment(object):
-	def __init__(self, frag, coords = None, fp=None,smiles=None):
+	def __init__(self, frag,ligand, coords = None, fp=None,smiles=None):
 		self.frag = frag
+
+		self.ligand = ligand
 
 		if coords is None:
 			self.coords = None
@@ -84,7 +86,7 @@ def draw_mols_to_png(mols,title,directory):
 	for i in mols:
 		for mol in i:
 			tmp = AllChem.Compute2DCoords(mol)
-		img = Draw.MolsToGridImage(i)
+		img = Draw.MolsToGridImage(i,legends=[str(x+1) for x in range(len(i))])
 		img.save(directory+title+str(mols.index(i))+'.png')
 
 def get_all_coords(mol):
@@ -95,18 +97,18 @@ def get_all_coords(mol):
 	# return the list of the coordinates from those positions
 	return [(atom.x,atom.y,atom.z) for atom in tmp]
 
-def get_fragments(mol,brics):
+def get_fragments(mol,brics,data_file):
 	## returns a list of non overlapping fragments.
 	## if brics == True then returns the BRICS fragments
 	if brics: 
-		return [Fragment(x) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol),asMols=True)]	## BRICS bonds
+		return [Fragment(x,data_file) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol),asMols=True)]	## BRICS bonds
 	else: 
 		## bond_smarts = Chem.MolFromSmarts("[*]!@!#!=[*]")	## single bonds
 		## bond_smarts = Chem.MolFromSmarts('[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]') ## simple rotatable bond smarts
 		bond_smarts = Chem.MolFromSmarts('[!$([NH]!@C(=O))&!D1&!$(*#*)]-&!@[!$([NH]!@C(=O))&!D1&!$(*#*)]') ## rotatable bonds
 		bonds = mol.GetSubstructMatches(bond_smarts)
 		bonds = [((x,y),(0,0)) for x,y in bonds]
-		return [Fragment(x) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=bonds),asMols=True)]
+		return [Fragment(x,data_file) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=bonds),asMols=True)]
 
 def get_overlapping_fragments(mol):
 	## returbs a list of overlapping fragments using a SMARTS pattern for a particular type of bond
@@ -201,12 +203,12 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	grouped = []
 	count = 0
 	## create a list of fragment objects here
-	mols = [get_fragments(mol,brics) for mol in mols]	
+	mols = [get_fragments(mol,brics,data_file) for mol in mols]	
 	## for a reference molecule mol in mols
-	for mol in mols:
+	for i in range(len(mols)):
 		## set query data set to be the molecules that are not the reference
-		query_set = [x for x in mols if x is not mol]
-		ref_frag = mol 			# a list of Fragment objects
+		ref_frag = mols[i] 			# a list of Fragment objects
+		query_set = mols[i:]
 		## for each remaining ligand make it the query ligand
 		for q in query_set:
 			frags = q
@@ -302,15 +304,15 @@ def collect_bioisosteres(*args):
 			if match:
 				ref_frags.extend(q_frags)
 				not_extended = False
-				print "one extended"
 		if not_extended:
+			# need to merge so that mols are not duplicated
 			final_collection.append(q_frags)
-			print "new appended"
 		collection= collection[1:]
-		print "comparisons: " + str(count)
-		print "length final collection: " + str(len(final_collection))
-		print "comparing... \n"
-
+	for i in final_collection:
+		remove_2D_equivalents(i)
+	lig_per_group = [set([frag.ligand for frag in group]) for group in final_collection]
+	#for i in range(len(final_collection)):
+		#print str(i) + "\t" + str(len(final_collection[i])) + "\t" + str(list(lig_per_group[i]))
 	directory = '../test_output/compared_results/' 
 	try: 
 		os.makedirs(directory)
@@ -335,6 +337,7 @@ def collect_bioisosteres_by_smiles(*args):
 			mols_by_smiles[mol.smiles] = [mol]
 	smiles = [[collection[i][j].smiles for j in range(len(collection[i]))] for i in range(len(collection))]
 	final_collection = [set(smiles[0])]
+	number_of_files = [1]
 	smiles= smiles[1:]
 	print " number of groups to compare: " + str(len(collection)+ 1)
 	print "comparing..."
@@ -346,16 +349,19 @@ def collect_bioisosteres_by_smiles(*args):
 		for ref_frags in final_collection:
 			if len(ref_frags.intersection(q_frags)) > 0:
 				ref_frags.update(q_frags)
+				number_of_files[final_collection.index(ref_frags)] += 1
 				count += 1
 				matched = True
 		if not matched:
 			final_collection.append(q_frags)
+			number_of_files.append(1)
 		smiles= smiles[1:]
 		it += 1
-		print "groups extended: " + str(count)
-		print "length of final collection: " + str(len(final_collection))
-		print "number of iterations: " + str(it)
-		print "comparing... \n"
+		## testing code 
+		## print "groups extended: " + str(count)
+		## print "length of final collection: " + str(len(final_collection))
+		## print "number of iterations: " + str(it)
+		## print "comparing... \n"
 	directory = '../test_output/compared_results/' 
 	try: 
 		os.makedirs(directory)
@@ -373,17 +379,17 @@ def collect_bioisosteres_by_smiles(*args):
 		f.write(str(i+1) + "," + str(len(final_collection[i]))+",\n")
 	f.close()
 	print "statistics written"
-	final_collection = [[Chem.MolFromSmiles(mol) for mol in smi] for smi in final_collection]
+	final_collection = [[Fragment(Chem.MolFromSmiles(mol),'final') for mol in list(smi)] for smi in final_collection]
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	print "pictures drawn"
-	return mols_by_smiles
+	return final_collection
 
 def two_dim_similars(data_file,threshold):
 	mols = get_mols_from_sdf_file(data_file,True)
 	fragments = [] 
 	## obtain 1 dimensional list of fragments
 	for m in mols:
-		fragments.extend(get_fragments(m,True))
+		fragments.extend(get_fragments(m,True,data_file))
 	
 	## obtain upper triangular boolean matrix based on similarity test
 	sim_matrix = []
@@ -422,6 +428,27 @@ def two_dim_similars(data_file,threshold):
 		draw_mols_to_png([unique_pairs],data_file,directory)
 	except IndexError:
 		print "EXIT PROGRAMME!"
+		return
+	## get pairs from files 1 to 10 
+	test_set = collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+	valid_groups = []
+	for i in xrange(len(test_set)):
+		group = test_set[i]
+		all_in_group = True
+		count = 0	
+		for q in unique_pairs:
+			mol_in_group = False
+			for ref in group:
+				if are_similar(ref,q,1):
+					mol_in_group = True
+			all_in_group = all_in_group and mol_in_group
+		if all_in_group:
+				valid_groups.append(i+1)
+	f = open(directory+data_file+"_valid groups",'w')
+	f.write("valid groups: \n") 
+	for group in valid_groups:
+		f.write(str(group)+"\n")
+	print "\n\n\n"
 
 file_1 = 'P39900' 
 file_2 = 'P56817'
@@ -434,7 +461,7 @@ file_8 = 'P43235'
 file_9 = 'Q00511'
 file_10 = 'P16184'
 
-get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
+#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
 #get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False, test = False)
@@ -448,16 +475,16 @@ get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = Fals
 #collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 #collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 # 
-#two_dim_similars(file_1, 0.7)
-#two_dim_similars(file_2, 0.7)
-#two_dim_similars(file_3, 0.7)
-#two_dim_similars(file_4, 0.7)
-#two_dim_similars(file_5, 0.7)
-#two_dim_similars(file_6, 0.7)
-#two_dim_similars(file_7, 0.7)
-#two_dim_similars(file_8, 0.7)
-#two_dim_similars(file_9, 0.7)
-#two_dim_similars(file_10, 0.7)
+two_dim_similars(file_1, 0.7)
+two_dim_similars(file_2, 0.7)
+two_dim_similars(file_3, 0.7)
+two_dim_similars(file_4, 0.7)
+two_dim_similars(file_5, 0.7)
+two_dim_similars(file_6, 0.7)
+two_dim_similars(file_7, 0.7)
+two_dim_similars(file_8, 0.7)
+two_dim_similars(file_9, 0.7)
+two_dim_similars(file_10, 0.7)
 
 ## TODO:: ARE THE SMILES OR TANIMOTO EFFECTED BY THE DUMMY ATOM FROM THE FRAGMENTATION???
 ## TODO:: SPLIT OVER FILES RELATING TO TASK AND LEAVE ONE TEST FILE TO TEST CODE

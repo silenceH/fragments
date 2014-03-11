@@ -302,16 +302,12 @@ def collect_bioisosteres(*args):
 					match = True
 					break
 			if match:
+				# need to merge so that mols are not duplicated
 				ref_frags.extend(q_frags)
 				not_extended = False
 		if not_extended:
 			final_collection.append(q_frags)
 		collection= collection[1:]
-		#####################
-		## test code
-		##print "comparisons: " + str(count)
-		##print "length final collection: " + str(len(final_collection))
-		##print "comparing... \n"
 	for i in final_collection:
 		remove_2D_equivalents(i)
 	lig_per_group = [set([frag.ligand for frag in group]) for group in final_collection]
@@ -476,19 +472,19 @@ file_10 = 'P16184'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-#collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 #collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 # 
-two_dim_similars(file_1, 0.7)
-two_dim_similars(file_2, 0.7)
-two_dim_similars(file_3, 0.7)
-two_dim_similars(file_4, 0.7)
-two_dim_similars(file_5, 0.7)
-two_dim_similars(file_6, 0.7)
-two_dim_similars(file_7, 0.7)
-two_dim_similars(file_8, 0.7)
-two_dim_similars(file_9, 0.7)
-two_dim_similars(file_10, 0.7)
+#two_dim_similars(file_1, 0.7)
+#two_dim_similars(file_2, 0.7)
+#two_dim_similars(file_3, 0.7)
+#two_dim_similars(file_4, 0.7)
+#two_dim_similars(file_5, 0.7)
+#two_dim_similars(file_6, 0.7)
+#two_dim_similars(file_7, 0.7)
+#two_dim_similars(file_8, 0.7)
+#two_dim_similars(file_9, 0.7)
+#two_dim_similars(file_10, 0.7)
 
 ## TODO:: ARE THE SMILES OR TANIMOTO EFFECTED BY THE DUMMY ATOM FROM THE FRAGMENTATION???
 ## TODO:: SPLIT OVER FILES RELATING TO TASK AND LEAVE ONE TEST FILE TO TEST CODE
