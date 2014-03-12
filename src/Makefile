@@ -1,5 +1,7 @@
 CFLAGS=-Wall -g
 
+frags:
+	g++ -std=c++11 -o frags_11 frags_11.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
 # make the test file to compile the Fragment analysis
 # need to make an object file Fragments.o 
 Fragments.o : Fragments.cpp Fragments.hpp
