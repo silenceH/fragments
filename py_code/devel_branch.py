@@ -2,29 +2,10 @@
 
 import os
 import time
-from math import sqrt, exp
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 from RDMols import * 
 from Fragment import *
-
-# TODO:: DELETE
-#class Fragment(object):
-#	def __init__(self, frag,ligand, coords = None, fp=None,smiles=None):
-#		self.frag = frag
-#
-#		self.ligand = ligand
-#
-#		if coords is None:
-#			self.coords = None
-#		
-#		if fp is None:
-#			self.fp = None
-#		self.fp = fp
-#
-#		if smiles is None:
-#			self.smiles=None
-#		self.smiles = smiles
 
 class FragmentGroup(object):
 	## a group of fragments as a list in order to make the 
@@ -54,29 +35,6 @@ class FragmentGroup(object):
 	def show(self):
 		return self.group
 
-
-
-def atom_coords(molecule,atom_no):
-	## returns a tuple of atom coordinates
-	pos = molecule.GetAtomPosition(atom_no)
-	return (pos.x,pos.y,pos.z)
-
-def get_distance(coords1,coords2):
-	## returns Euclidean distance between two 3D coordinates
-	return sqrt(pow((coords1[0]-coords2[0]),2)+pow((coords1[1]-coords2[1]),2)+pow((coords1[2]-coords2[2]),2))
-
-#def are_similar(frag1,frag2,threshold):
-#	## returns False if Tanimoto similarity is greater than threshold
-#	if frag1.fp is None:
-#		frag1.fp = AllChem.GetMorganFingerprint(frag1.frag,2)
-#	if frag2.fp is None:
-#		frag2.fp = AllChem.GetMorganFingerprint(frag2.frag,2)
-#	tanimoto = DataStructs.TanimotoSimilarity(frag1.fp,frag2.fp)
-#	if tanimoto >= threshold:
-#		return True 
-#	else: 
-#		return False
-
 def remove_2D_equivalents(mols):
 	## remove duplicate 2D mols
 	u = []
@@ -88,46 +46,6 @@ def remove_2D_equivalents(mols):
 		if include:
 			u.append(mol)
 	return u
-
-#def write_mols_to_file(mols,title,directory):
-#	## write to file
-#	for i in mols:
-#		w = Chem.SDWriter(directory+title+str(mols.index(i))+'.sdf')
-#		for mol in i: 
-#			w.write(mol.frag)
-#		w.flush()
-#
-#def draw_mols_to_png(mols,title,directory):
-#	## test for Fragment object
-#	if isinstance(mols[0][0],Fragment):
-#		mols = [[mol.frag for mol in group] for group in mols]
-#	## draw image
-#	for i in mols:
-#		for mol in i:
-#			tmp = AllChem.Compute2DCoords(mol)
-#		img = Draw.MolsToGridImage(i,legends=[str(x+1) for x in range(len(i))])
-#		img.save(directory+title+str(mols.index(i))+'.png')
-
-def get_all_coords(mol):
-	## return a list of coords for the 3D shape of a mol 
-	# define a constructor of position objects
-	tmp = (mol.GetConformer().GetAtomPosition(i) for i in range(mol.GetNumAtoms()))
-	
-	# return the list of the coordinates from those positions
-	return [(atom.x,atom.y,atom.z) for atom in tmp]
-
-def get_fragments(mol,brics,data_file):
-	## returns a list of non overlapping fragments.
-	## if brics == True then returns the BRICS fragments
-	if brics: 
-		return [Fragment(x,data_file) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol),asMols=True)]	## BRICS bonds
-	else: 
-		## bond_smarts = Chem.MolFromSmarts("[*]!@!#!=[*]")	## single bonds
-		## bond_smarts = Chem.MolFromSmarts('[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]') ## simple rotatable bond smarts
-		bond_smarts = Chem.MolFromSmarts('[!$([NH]!@C(=O))&!D1&!$(*#*)]-&!@[!$([NH]!@C(=O))&!D1&!$(*#*)]') ## rotatable bonds
-		bonds = mol.GetSubstructMatches(bond_smarts)
-		bonds = [((x,y),(0,0)) for x,y in bonds]
-		return [Fragment(x,data_file) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=bonds),asMols=True)]
 
 def get_overlapping_fragments(mol):
 	## returbs a list of overlapping fragments using a SMARTS pattern for a particular type of bond
@@ -181,23 +99,6 @@ def score_pairs_TD(atom1,atom2):
 		return True
 	else:
 		return False
-
-#def score_pairs_kennewell(mol1,mol2):
-#	## get number of atoms for each molecule
-#	frag1, frag2 = mol1.frag,mol2.frag
-#	atoms_ref = frag1.GetNumAtoms()
-#	atoms_f = frag2.GetNumAtoms()
-#	## get coordinates for the reference molecule
-#	ref_atoms = get_all_coords(frag1)
-#	section_score = []
-#	for section_atom in ref_atoms:
-#		dist = [get_distance(section_atom,frag_atom) for frag_atom in get_all_coords(frag2)]
-#		section_score.append(sum([exp(-pow(d,2)) for d in dist]))
-#	av_score = sum(section_score)*(2./(atoms_f+atoms_ref))
-#	if av_score>0.7:
-#		return True 
-#	else: 
-#		return False
 
 def get_av_similarity(mols):
 	total_sim = 0
@@ -503,24 +404,24 @@ get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = Fals
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-#t1 = []
-#t2 = []
-#for i in range(5):
-#	start1 = time.time()
-#	collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
-#	t1.append(time.time()-start1)
-#	start2 = time.time()
-#	collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
-#	t2.append(time.time()-start2)
-#
-#print "smiles : " + str(t1)
-#print "non-smiles : " + str(t2)
-#
-#print "smiles max = " + str(max(t1))
-#print "non-smiles max = " + str(max(t2))
-#
-#print "smiles min = " + str(min(t1))
-#print "non-smiles min = " + str(min(t2))
+t1 = []
+t2 = []
+for i in range(5):
+	start1 = time.time()
+	collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+	t1.append(time.time()-start1)
+	start2 = time.time()
+	collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+	t2.append(time.time()-start2)
+
+print "smiles : " + str(t1)
+print "non-smiles : " + str(t2)
+
+print "smiles max = " + str(max(t1))
+print "non-smiles max = " + str(max(t2))
+
+print "smiles min = " + str(min(t1))
+print "non-smiles min = " + str(min(t2))
 #two_dim_similars(file_1, 0.7)
 #two_dim_similars(file_2, 0.7)
 #two_dim_similars(file_3, 0.7)
