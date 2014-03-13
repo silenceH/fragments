@@ -4,11 +4,17 @@ Hydrogen's removed.
 Kennewell scoring
 Number of fragments: 37
 Number of identified pairs : 726
-Number of overlaid sections: 3
+Number of overlaid sections: 9
 group 	frags 	av similarity
 1	19	2.01408509171
 2	11	1.33699916939
-3	2	0.0384615384615
+3	8	0.854259836869
+4	8	0.854259836869
+5	8	0.854259836869
+6	3	0.478114478114
+7	2	0.0384615384615
+8	3	0.478114478114
+9	3	0.478114478114
 
-average similarity over the group: 1.12984859985
+average similarity over the group: 0.820740971612
 
