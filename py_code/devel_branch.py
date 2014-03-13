@@ -5,38 +5,56 @@ import time
 from math import sqrt, exp
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
+from RDMols import * 
+from Fragment import *
 
-class Fragment(object):
-	def __init__(self, frag,ligand, coords = None, fp=None,smiles=None):
-		self.frag = frag
+# TODO:: DELETE
+#class Fragment(object):
+#	def __init__(self, frag,ligand, coords = None, fp=None,smiles=None):
+#		self.frag = frag
+#
+#		self.ligand = ligand
+#
+#		if coords is None:
+#			self.coords = None
+#		
+#		if fp is None:
+#			self.fp = None
+#		self.fp = fp
+#
+#		if smiles is None:
+#			self.smiles=None
+#		self.smiles = smiles
 
-		self.ligand = ligand
+class FragmentGroup(object):
+	## a group of fragments as a list in order to make the 
+	## management of fragment groups easier
+	def __init__(self,first_frag):
+		self.group = [first_frag]
+	
+	def add(self,frag):
+		self.group.append(frag)
 
-		if coords is None:
-			self.coords = None
-		
-		if fp is None:
-			self.fp = None
-		self.fp = fp
+	def join(self,another):
+		self.group.extend(another)
 
-		if smiles is None:
-			self.smiles=None
-		self.smiles = smiles
+	def merge(self,anotherGroup):
+		q_group = anotherGroup.group
+		add_group = []
+		for mol in anotherGroup.group:
+			unique = True
+			for ref in self.group:
+				if ref.are_similar(mol,1):
+					unique = False
+					break
+			if unique:
+				add_group.append(mol)
+		self.group.extend(add_group)
+
+	def show(self):
+		return self.group
 
 
-def get_mols_from_sdf_file(data_file, noHs):
-	## Method to return molecules for a given sdf data file
-	try:
-		data = os.environ['DATA']		## get data env
-		print "found data environment: " + data
-	except KeyError:
-		print "cannot find data environment variable"
-
-	if noHs:
-		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf')
-	else: 
-		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf',removeHs=False)
-	return [x for x in suppl if x is not None]
 
 def atom_coords(molecule,atom_no):
 	## returns a tuple of atom coordinates
@@ -47,17 +65,17 @@ def get_distance(coords1,coords2):
 	## returns Euclidean distance between two 3D coordinates
 	return sqrt(pow((coords1[0]-coords2[0]),2)+pow((coords1[1]-coords2[1]),2)+pow((coords1[2]-coords2[2]),2))
 
-def are_similar(frag1,frag2,threshold):
-	## returns False if Tanimoto similarity is greater than threshold
-	if frag1.fp is None:
-		frag1.fp = AllChem.GetMorganFingerprint(frag1.frag,2)
-	if frag2.fp is None:
-		frag2.fp = AllChem.GetMorganFingerprint(frag2.frag,2)
-	tanimoto = DataStructs.TanimotoSimilarity(frag1.fp,frag2.fp)
-	if tanimoto >= threshold:
-		return True 
-	else: 
-		return False
+#def are_similar(frag1,frag2,threshold):
+#	## returns False if Tanimoto similarity is greater than threshold
+#	if frag1.fp is None:
+#		frag1.fp = AllChem.GetMorganFingerprint(frag1.frag,2)
+#	if frag2.fp is None:
+#		frag2.fp = AllChem.GetMorganFingerprint(frag2.frag,2)
+#	tanimoto = DataStructs.TanimotoSimilarity(frag1.fp,frag2.fp)
+#	if tanimoto >= threshold:
+#		return True 
+#	else: 
+#		return False
 
 def remove_2D_equivalents(mols):
 	## remove duplicate 2D mols
@@ -65,30 +83,30 @@ def remove_2D_equivalents(mols):
 	for mol in mols:
 		include = True
 		for m in u:
-			if are_similar(mol,m,1.0):
+			if mol.are_similar(m,1.0):
 				include = False
 		if include:
 			u.append(mol)
 	return u
 
-def write_mols_to_file(mols,title,directory):
-	## write to file
-	for i in mols:
-		w = Chem.SDWriter(directory+title+str(mols.index(i))+'.sdf')
-		for mol in i: 
-			w.write(mol.frag)
-		w.flush()
-
-def draw_mols_to_png(mols,title,directory):
-	## test for Fragment object
-	if isinstance(mols[0][0],Fragment):
-		mols = [[mol.frag for mol in group] for group in mols]
-	## draw image
-	for i in mols:
-		for mol in i:
-			tmp = AllChem.Compute2DCoords(mol)
-		img = Draw.MolsToGridImage(i,legends=[str(x+1) for x in range(len(i))])
-		img.save(directory+title+str(mols.index(i))+'.png')
+#def write_mols_to_file(mols,title,directory):
+#	## write to file
+#	for i in mols:
+#		w = Chem.SDWriter(directory+title+str(mols.index(i))+'.sdf')
+#		for mol in i: 
+#			w.write(mol.frag)
+#		w.flush()
+#
+#def draw_mols_to_png(mols,title,directory):
+#	## test for Fragment object
+#	if isinstance(mols[0][0],Fragment):
+#		mols = [[mol.frag for mol in group] for group in mols]
+#	## draw image
+#	for i in mols:
+#		for mol in i:
+#			tmp = AllChem.Compute2DCoords(mol)
+#		img = Draw.MolsToGridImage(i,legends=[str(x+1) for x in range(len(i))])
+#		img.save(directory+title+str(mols.index(i))+'.png')
 
 def get_all_coords(mol):
 	## return a list of coords for the 3D shape of a mol 
@@ -164,22 +182,22 @@ def score_pairs_TD(atom1,atom2):
 	else:
 		return False
 
-def score_pairs_kennewell(mol1,mol2):
-	## get number of atoms for each molecule
-	frag1, frag2 = mol1.frag,mol2.frag
-	atoms_ref = frag1.GetNumAtoms()
-	atoms_f = frag2.GetNumAtoms()
-	## get coordinates for the reference molecule
-	ref_atoms = get_all_coords(frag1)
-	section_score = []
-	for section_atom in ref_atoms:
-		dist = [get_distance(section_atom,frag_atom) for frag_atom in get_all_coords(frag2)]
-		section_score.append(sum([exp(-pow(d,2)) for d in dist]))
-	av_score = sum(section_score)*(2./(atoms_f+atoms_ref))
-	if av_score>0.7:
-		return True 
-	else: 
-		return False
+#def score_pairs_kennewell(mol1,mol2):
+#	## get number of atoms for each molecule
+#	frag1, frag2 = mol1.frag,mol2.frag
+#	atoms_ref = frag1.GetNumAtoms()
+#	atoms_f = frag2.GetNumAtoms()
+#	## get coordinates for the reference molecule
+#	ref_atoms = get_all_coords(frag1)
+#	section_score = []
+#	for section_atom in ref_atoms:
+#		dist = [get_distance(section_atom,frag_atom) for frag_atom in get_all_coords(frag2)]
+#		section_score.append(sum([exp(-pow(d,2)) for d in dist]))
+#	av_score = sum(section_score)*(2./(atoms_f+atoms_ref))
+#	if av_score>0.7:
+#		return True 
+#	else: 
+#		return False
 
 def get_av_similarity(mols):
 	total_sim = 0
@@ -196,7 +214,7 @@ def merge_frag_groups(ref_group,merge_group):
 	for mol in merge_group:
 		unique = True
 		for ref in ref_group:
-			if are_similar(ref,mol,1):
+			if ref.are_similar(mol,1):
 				unique = False
 				break
 		if unique:
@@ -232,11 +250,11 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 				for f in frags:
 					candidate = True
 					if kennewell:  
-						candidate = score_pairs_kennewell(s,f) 	## Kennewell scores
+						candidate = s.score_pairs_kennewell(f) 	## Kennewell scores
 						count += 1
 					else: 
 						candidate = score_pairs_TD(s,f)		## Tanimoto distance
-					if candidate and not are_similar(s,f,1.0): 
+					if candidate and not s.are_similar(f,1.0): 
 						section_pairs.append(f)
 				if len(section_pairs) > 1:
 					candidate_pairs.append(section_pairs)
@@ -313,7 +331,7 @@ def collect_bioisosteres(*args):
 			match = False
 			for ref,q in ((m1,m2) for m1 in ref_frags for m2 in q_frags):
 				count += 1
-				if are_similar(ref,q,1.):
+				if ref.are_similar(q,1.):
 					match = True
 					break
 			if match:
@@ -408,7 +426,7 @@ def two_dim_similars(data_file,threshold):
 	sim_matrix = []
 	for i in range(len(fragments)):
 		## are similar at a threshold but not identical
-		row = [are_similar(fragments[i],fragments[j],threshold) and not are_similar(fragments[i],fragments[j],1) for j in range(len(fragments)) if j > i]
+		row = [fragments[i].are_similar(fragments[j],threshold) and not fragments[i].are_similar(fragments[j],1) for j in range(len(fragments)) if j > i]
 		sim_matrix.append(row)
 	pairs = [(x,y+1+x) for x in range(len(sim_matrix)) for y in range(len(sim_matrix[x])) if sim_matrix[x][y]]
 	print data_file
@@ -422,7 +440,7 @@ def two_dim_similars(data_file,threshold):
 		for ref in final:
 			ref_is_unique = True
 			for q in unique_pairs:
-				if are_similar(ref,q,1):
+				if ref.are_similar(q,1):
 					ref_is_unique = False
 			if ref_is_unique:
 				unique_pairs.append(ref)
@@ -452,7 +470,7 @@ def two_dim_similars(data_file,threshold):
 		for q in unique_pairs:
 			mol_in_group = False
 			for ref in group:
-				if are_similar(ref,q,1):
+				if ref.are_similar(q,1):
 					mol_in_group = True
 			all_in_group = all_in_group and mol_in_group
 		if all_in_group:
@@ -474,7 +492,7 @@ file_8 = 'P43235'
 file_9 = 'Q00511'
 file_10 = 'P16184'
 
-#get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
+get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = False)
 #get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False, test = False)
@@ -485,24 +503,24 @@ file_10 = 'P16184'
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
 #get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
 #get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-t1 = []
-t2 = []
-for i in range(5):
-	start1 = time.time()
-	collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
-	t1.append(time.time()-start1)
-	start2 = time.time()
-	collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
-	t2.append(time.time()-start2)
-
-print "smiles : " + str(t1)
-print "non-smiles : " + str(t2)
-
-print "smiles max = " + str(max(t1))
-print "non-smiles max = " + str(max(t2))
-
-print "smiles min = " + str(min(t1))
-print "non-smiles min = " + str(min(t2))
+#t1 = []
+#t2 = []
+#for i in range(5):
+#	start1 = time.time()
+#	collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+#	t1.append(time.time()-start1)
+#	start2 = time.time()
+#	collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+#	t2.append(time.time()-start2)
+#
+#print "smiles : " + str(t1)
+#print "non-smiles : " + str(t2)
+#
+#print "smiles max = " + str(max(t1))
+#print "non-smiles max = " + str(max(t2))
+#
+#print "smiles min = " + str(min(t1))
+#print "non-smiles min = " + str(min(t2))
 #two_dim_similars(file_1, 0.7)
 #two_dim_similars(file_2, 0.7)
 #two_dim_similars(file_3, 0.7)
