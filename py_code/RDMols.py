@@ -30,18 +30,20 @@ def get_fragments(mol,brics,data_file):
 		bonds = [((x,y),(0,0)) for x,y in bonds]
 		return [Fragment(x,data_file) for x in Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=bonds),asMols=True)]
 
-def write_mols_to_file(mols,title,directory):
+def write_mols_to_file(group_list,title,directory):
 	## write to file
-	for i in mols:
-		w = Chem.SDWriter(directory+title+str(mols.index(i))+'.sdf')
-		for mol in i: 
+	for i in group_list:
+		w = Chem.SDWriter(directory+title+str(group_list.index(i))+'.sdf')
+		for mol in i.group: 
 			w.write(mol.frag)
 		w.flush()
 
-def draw_mols_to_png(mols,title,directory):
+def draw_mols_to_png(group_list,title,directory):
 	## test for Fragment object
-	if isinstance(mols[0][0],Fragment):
-		mols = [[mol.frag for mol in group] for group in mols]
+	try: 
+		mols = [[mol.frag for mol in frag_group.group] for frag_group in group_list]
+	except AttributeError:
+		mols = [[mol.frag for mol in frag_group] for frag_group in group_list]
 	## draw image
 	for i in mols:
 		for mol in i:

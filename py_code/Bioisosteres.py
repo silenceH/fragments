@@ -6,46 +6,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 from RDMols import * 
 from Fragment import *
-
-class FragmentGroup(object):
-	## a group of fragments as a list in order to make the 
-	## management of fragment groups easier
-	def __init__(self,first_frag):
-		self.group = [first_frag]
-	
-	def add(self,frag):
-		self.group.append(frag)
-
-	def join(self,another):
-		self.group.extend(another)
-
-	def merge(self,anotherGroup):
-		q_group = anotherGroup.group
-		add_group = []
-		for mol in anotherGroup.group:
-			unique = True
-			for ref in self.group:
-				if ref.are_similar(mol,1):
-					unique = False
-					break
-			if unique:
-				add_group.append(mol)
-		self.group.extend(add_group)
-
-	def show(self):
-		return self.group
-
-def remove_2D_equivalents(mols):
-	## remove duplicate 2D mols
-	u = []
-	for mol in mols:
-		include = True
-		for m in u:
-			if mol.are_similar(m,1.0):
-				include = False
-		if include:
-			u.append(mol)
-	return u
+from FragmentGroup import *
 
 def get_overlapping_fragments(mol):
 	## returbs a list of overlapping fragments using a SMARTS pattern for a particular type of bond
@@ -100,14 +61,6 @@ def score_pairs_TD(atom1,atom2):
 	else:
 		return False
 
-def get_av_similarity(mols):
-	total_sim = 0
-	num_mols = len(mols)
-	for i in range(num_mols):
-		row = (DataStructs.TanimotoSimilarity(mols[i].fp,mols[j].fp) for j in range(num_mols) if j > i)
-		total_sim += sum(row)
-	return total_sim/num_mols
-
 def merge_frag_groups(ref_group,merge_group):
 	## take two groups of Frag objects and merge them 
 	## so that there are no duplicates
@@ -133,7 +86,8 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 
 	## import mols from data_file 
 	mols = get_mols_from_sdf_file(data_file,noHs)
-	candidate_pairs = []
+	# list of candidate bioisosteric pairs to view individual pairs if needed commented out
+	# candidate_pairs = []
 	grouped = []
 	count = 0
 	## create a list of fragment objects here
@@ -147,7 +101,8 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 		for q in query_set:
 			frags = q
 			for s in ref_frag:
-				section_pairs = [s]
+				# create fragment group
+				section_group = Group(s)
 				for f in frags:
 					candidate = True
 					if kennewell:  
@@ -156,25 +111,16 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 					else: 
 						candidate = score_pairs_TD(s,f)		## Tanimoto distance
 					if candidate and not s.are_similar(f,1.0): 
-						section_pairs.append(f)
-				if len(section_pairs) > 1:
-					candidate_pairs.append(section_pairs)
+						section_group.add(f)
+				if section_group.size() > 1:
+					#candidate_pairs.append(section_group)
 					in_grouped = False
-					for group in grouped:
-						if section_pairs[0] in group:
+					for x in grouped:
+						if section_group.get_mol(0) in x.group:
 							in_grouped = True
-							group += section_pairs
+							x.merge(section_group) 
 					if not in_grouped:
-						grouped.append(section_pairs)
-	# depuplicate groups
-	for group in grouped:
-		u = []
-		for mol in group:
-			if mol not in u:
-				u.append(mol)	
-		group = u
-	# remove 2D equivalent mols
-	final_group = [remove_2D_equivalents(g) for g in grouped]
+						grouped.append(section_group)
 
 	if noHs: data_file += "_noHs"
 	if brics: data_file += "_brics"
@@ -189,10 +135,10 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 		print directory + " already exists."	
 	if not test: 
 		# write groups to file
-		write_mols_to_file(final_group,'final_group',directory)
+		write_mols_to_file(grouped,'final_group',directory)
 		
 		# draw mols to png
-		draw_mols_to_png(final_group,'final_group',directory)
+		draw_mols_to_png(grouped,'final_group',directory)
 	
 	## produce statistics and write to file ## 
 	f = open(directory+"stats",'w')
@@ -207,19 +153,20 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 	if kennewell: f.write("Kennewell scoring\n")
 	f.write("Number of fragments: " + str(sum([len(m) for m in mols])) + "\n")
 	f.write("Number of identified pairs : " + str(count) + "\n")
-	f.write("Number of overlaid sections: " + str(len(final_group)) + "\n")
+	f.write("Number of overlaid sections: " + str(len(grouped)) + "\n")
 	f.write("group \tfrags \tav similarity\n")
-	for i in range(len(final_group)):
-		av_sim = get_av_similarity(final_group[i])
-		f.write(str(i+1) + "\t" + str(len(final_group[i])) + "\t" + str(av_sim)+"\n")
+	for i in range(len(grouped)):
+		av_sim = grouped[i].get_av_similarity()
+		f.write(str(i+1) + "\t" + str(grouped[i].size()) + "\t" + str(av_sim)+"\n")
 		total_sim_of_groups += av_sim
-	f.write("\naverage similarity over the group: " + str(total_sim_of_groups/len(final_group)) + "\n\n")
-	return final_group
+	f.write("\naverage similarity over the group: " + str(total_sim_of_groups/len(grouped)) + "\n\n")
+	return grouped
 
 def collect_bioisosteres(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
+	## NOTE:: this gives a list of Group objects
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
-	final_collection = [collection[0]]
+	final_collection = [collection[0]] 
 	collection= collection[1:]
 	print " number of groups to compare: " + str(len(collection)+ 1)
 	print "comparing..."
@@ -230,19 +177,19 @@ def collect_bioisosteres(*args):
 		q_frags = collection[0]
 		for ref_frags in final_collection:
 			match = False
-			for ref,q in ((m1,m2) for m1 in ref_frags for m2 in q_frags):
+			for ref,q in ((m1,m2) for m1 in ref_frags.group for m2 in q_frags.group):
 				count += 1
 				if ref.are_similar(q,1.):
 					match = True
 					break
 			if match:
 				# need to merge so that mols are not duplicated
-				merge_frag_groups(ref_frags,q_frags)
+				ref_frags.merge(q_frags)
 				not_extended = False
 		if not_extended:
 			final_collection.append(q_frags)
 		collection= collection[1:]
-	lig_per_group = [set([frag.ligand for frag in group]) for group in final_collection]
+	lig_per_group = [set([frag.ligand for frag in frag_group.group]) for frag_group in final_collection]
 	#for i in range(len(final_collection)):
 		#print str(i) + "\t" + str(len(final_collection[i])) + "\t" + str(list(lig_per_group[i]))
 	directory = '../test_output/compared_results_NO_SMILES/' 
@@ -252,6 +199,16 @@ def collect_bioisosteres(*args):
 	except OSError:
 		print directory + " already exists."	
 	write_mols_to_file(final_collection,'final_collection',directory)
+	f = open(directory+"stats.csv",'w')
+	f.write("files,\n")
+	for i in args:
+		f.write(i + ",\n")
+	f.write("total," +  str(len(final_collection))+",\n")
+	f.write("group,number,\n")
+	for i in range(len(final_collection)):
+		f.write(str(i+1) + "," + str(final_collection[i].size())+",\n")
+	f.close()
+	print "statistics written"
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	return final_collection
 
@@ -261,13 +218,13 @@ def collect_bioisosteres_by_smiles(*args):
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
 	# create a dictionary of the smiles with mol objects as values
 	mols_by_smiles = dict()
-	for mol in [collection[i][j] for i in range(len(collection)) for j in range(len(collection[i]))]:
+	for mol in (collection[i].get_mol(j) for i in range(len(collection)) for j in range(collection[i].size())):
 		mol.smiles = Chem.MolToSmiles(mol.frag)
 		if mol.smiles in mols_by_smiles:
 			mols_by_smiles[mol.smiles].append(mol)
 		else: 
 			mols_by_smiles[mol.smiles] = [mol]
-	smiles = [[collection[i][j].smiles for j in range(len(collection[i]))] for i in range(len(collection))]
+	smiles = [[collection[i].get_mol(j).smiles for j in range(collection[i].size())] for i in range(len(collection))]
 	final_collection = [set(smiles[0])]
 	number_of_files = [1]
 	smiles= smiles[1:]
@@ -382,56 +339,67 @@ def two_dim_similars(data_file,threshold):
 		f.write(str(group)+"\n")
 	print "\n\n\n"
 
-file_1 = 'P39900' 
-file_2 = 'P56817'
-file_3 = 'P35557'
-file_4 = 'Q92731'
-file_5 = 'P25440'
-file_6 = 'P00918'
-file_7 = 'P0AE18'
-file_8 = 'P43235'
-file_9 = 'Q00511'
-file_10 = 'P16184'
 
-get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = False)
-#get_bioisosteres(file_1, noHs=True, brics=False, kennewell = True, overlap = True, test = False)
-#get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = True, test = False)
-#get_bioisosteres(file_1, noHs=False, brics=True, kennewell=False, overlap = False, test = False)
-#get_bioisosteres(file_2, noHs=True, brics=True, kennewell=True, overlap = False, test = False)
-#get_bioisosteres(file_1, noHs=False, brics=False, kennewell=False, overlap = True, test = False)
-#get_bioisosteres(file_1, noHs=False, brics=False, kennewell=False, overlap = False, test = False)
-#get_bioisosteres(file_2, noHs=False, brics=False, kennewell=False, overlap = True, test = False)
-#get_bioisosteres(file_3, noHs=True, brics=False, kennewell=False, overlap = True, test = False)
-#get_bioisosteres(file_2, noHs=False, brics=False, kennewell=True, overlap = True, test = False)
-#get_bioisosteres(file_3, noHs=True, brics=False, kennewell=True, overlap = True, test = False)
-t1 = []
-t2 = []
-for i in range(5):
-	start1 = time.time()
-	collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
-	t1.append(time.time()-start1)
-	start2 = time.time()
-	collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
-	t2.append(time.time()-start2)
 
-print "smiles : " + str(t1)
-print "non-smiles : " + str(t2)
 
-print "smiles max = " + str(max(t1))
-print "non-smiles max = " + str(max(t2))
 
-print "smiles min = " + str(min(t1))
-print "non-smiles min = " + str(min(t2))
-#two_dim_similars(file_1, 0.7)
-#two_dim_similars(file_2, 0.7)
-#two_dim_similars(file_3, 0.7)
-#two_dim_similars(file_4, 0.7)
-#two_dim_similars(file_5, 0.7)
-#two_dim_similars(file_6, 0.7)
-#two_dim_similars(file_7, 0.7)
-#two_dim_similars(file_8, 0.7)
-#two_dim_similars(file_9, 0.7)
-#two_dim_similars(file_10, 0.7)
 
-## TODO:: ARE THE SMILES OR TANIMOTO EFFECTED BY THE DUMMY ATOM FROM THE FRAGMENTATION???
-## TODO:: SPLIT OVER FILES RELATING TO TASK AND LEAVE ONE TEST FILE TO TEST CODE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
