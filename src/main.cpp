@@ -25,7 +25,8 @@ int main()
 	std::cout << smiles4 << std::endl;
 
 	// get mols 
-	auto mols = RDKMols::getMols("P39900");
+	RDKMols file;
+	auto mols = file.getMols("P39900");
 	return 0;
 
 }
