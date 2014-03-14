@@ -35,7 +35,7 @@ class Fragment
 	public:
 		sp_fragments frag;
 		string smiles;
-		ExplicitBitVect *fp;
+		//ExplicitBitVect *fp;
 
 };
 
@@ -64,8 +64,8 @@ vector<ROMol*> getMols(string file_name)
 	}
 	
 
-	string fname = data + string("validation_overlays/") +file_name + string(".sdf");
-	SDMolSupplier suppl(fname,true,false);	// sanitize mols and keep H atoms
+	string fname = string(data) + string("validation_overlays/") +file_name + string(".sdf");
+	SDMolSupplier suppl(fname,true);	// sanitize mols and keep H atoms
 	vector<ROMol*> mols;
 	while(!suppl.atEnd())
 	{
@@ -79,23 +79,19 @@ vector<ROMol*> getMols(string file_name)
 int main()
 {
 	// get the molecules as a vector of pointers
-	//auto mols = getMols("P39900");
 	// for each mol in mols, make the mol the reference and the 
 	// rest the queries
 	
-	char* data = getenv("DATA");
-	string fname = data + string("validation_overlays/") +"P39900" + string(".sdf");
-	cout << fname << endl;
+	string var = "P39900";
+	auto mols = getMols(var);
 	int count = 0;
-	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
+	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end();++i)
 	{
 		ROMol *mol = *i;
-		//cout <<"size of vector: " << mols.size() << endl;
-		
 		auto ref_fragments = fragment_mol(*mol); 	// as mol is a smart pointer we use *mol
 
 		// for the remaining molecules, fragment and score
-		for(vector<ROMol*>::iterator j = i + 1; j!=mols.end();++j)
+		for(vector<ROMol*>::iterator j = i; j!=mols.end();++j)
 		{
 			if(*j != mol)
 			{
@@ -145,7 +141,7 @@ int main()
 					if(section_match.size() > 1)
 					{
 						//cout << "number of pairs in section: " << section_match.size() << endl;
-						string fname = "../test_output/test_pairs/pair_" + to_string(count)+".sdf";
+						string fname = "/usr/users/people/matts/fragments/test_output/cpp/pair_" + to_string(count)+".sdf";
 						SDWriter *writer = new SDWriter(fname);
 						for(auto const& match : section_match)
 						{

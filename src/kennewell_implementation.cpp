@@ -40,16 +40,13 @@ vector<sp_fragments> fragment_mol(ROMol& mol)
 	return num_frags;
 }
 
-<vector < vector<sp_fragments> > get_bioisosteres(string data_file)
-{
-}
 
 /* 
  * Method that takes a file name and returns a vector of ROMol pointers
  */
 vector<ROMol*> getMols(string file_name)
 {
-	string fname = string("/home/matthew/data/validation_overlays/") +file_name + string(".sdf");
+	string fname = string("/usr/users/people/matts/data/validation_overlays/") +file_name + string(".sdf");
 	SDMolSupplier suppl(fname,true,false);	// sanitize mols and keep H atoms
 	vector<ROMol*> mols;
 	while(!suppl.atEnd())
