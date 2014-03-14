@@ -107,11 +107,11 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 					candidate = True
 					if kennewell:  
 						candidate = s.score_pairs_kennewell(f) 	## Kennewell scores
-						count += 1
 					else: 
 						candidate = score_pairs_TD(s,f)		## Tanimoto distance
 					if candidate and not s.are_similar(f,1.0): 
 						section_group.add(f)
+						count += 1
 				if section_group.size() > 1:
 					#candidate_pairs.append(section_group)
 					in_grouped = False
