@@ -13,12 +13,15 @@ Frag.o : Frag.cpp Frag.hpp
 RDKMols.o : RDKMols.cpp RDKMols.hpp
 	g++ -std=c++11 -c -O RDKMols.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lFileParsers -lChemTransforms
 
-# Then we need to compile the test code
-main.o : main.cpp Frag.hpp RDKMols.hpp
-	g++ -std=c++11 -c -O main.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms
+Bioisosteres.o: Bioisosteres.cpp Bioisosteres.hpp
+	g++ -std=c++11 -c -O Bioisosteres.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lFileParsers -lChemTransforms
 
-main: Frag.o RDKMols.o main.o
-	g++ -O -o main Frag.o main.o -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms
+# Then we need to compile the test code
+main.o : main.cpp Frag.hpp RDKMols.hpp Bioisosteres.hpp
+	g++ -std=c++11 -c -O main.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lFileParsers -lChemTransforms
+
+main: Frag.o RDKMols.o Bioisosteres.o main.o
+	g++ -O -o main Frag.o main.o -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms -lFileParsers 
 	
 clean:
-	rm -f kenn frags_11 test file_test
+	rm -f kenn frags_11 test file_test main

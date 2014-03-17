@@ -2,20 +2,30 @@
 #include <stdlib.h> // exit getenv
 #include "RDKMols.hpp"
 
-std::vector<sp_fragments> RDKMols::fragment_mol(ROMol& mol)
-{
-	// take a dereferenced mol pointer and fragment
-	ROMol* frag = MolFragmenter::fragmentOnBRICSBonds(mol);
-	std::vector<sp_fragments> num_frags = MolOps::getMolFrags(*frag);
-	return num_frags;
-}
+#include <GraphMol/ROMol.h>
+#include <GraphMol/RDKitBase.h>
+#include <GraphMol/FileParsers/MolSupplier.h> // for obtaining the molecules from sdf
+#include <GraphMol/FileParsers/MolWriters.h> // for writing the molecules to sdf
+#include <GraphMol/FileParsers/FileParsers.h>
+#include <GraphMol/ChemTransforms/MolFragmenter.h>
+#include <GraphMol/RDKitQueries.h>
 
+using namespace RDKit;
 
 /* 
- * Method that takes a file name and returns a std::vector of ROMol pointers
+ * Constructor
  */
-std::vector<ROMol*> RDKMols::getMols(std::string file_name)
+
+RDKMols::RDKMols()
 {
+	ligand = "unspecified";
+}
+
+RDKMols::RDKMols(const std::string file_name)
+{
+	// set file name
+	ligand = file_name;
+
 	char* data = getenv("DATA");
 	if (data==NULL)
 	{
@@ -23,15 +33,15 @@ std::vector<ROMol*> RDKMols::getMols(std::string file_name)
 		exit(EXIT_FAILURE);
 	}
 	
-
+	// set molecules in file
 	std::string fname = std::string(data) + std::string("validation_overlays/") +file_name + std::string(".sdf");
 	SDMolSupplier suppl(fname,true);	// sanitize mols and keep H atoms
-	std::vector<ROMol*> mols;
 	while(!suppl.atEnd())
 	{
 		ROMol *nmol = suppl.next();
 		if(nmol!=0) 			// NULL is 0 in c++
 			mols.push_back(nmol);
 	}
-	return mols;
 }
+
+

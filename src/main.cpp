@@ -1,6 +1,10 @@
 #include <iostream>
 #include "Frag.hpp"
+#include "Bioisosteres.hpp"
+#include "Bioisosteres.cpp"
 #include "RDKMols.hpp"
+#include "RDKMols.cpp"
+
 
 int main() 
 {
@@ -25,8 +29,20 @@ int main()
 	std::cout << smiles4 << std::endl;
 
 	// get mols 
-	RDKMols file;
-	auto mols = file.getMols("P39900");
+	RDKMols* file = new RDKMols(std::string("P39900"));
+
+	std::cout << (*file).ligand << std::endl;
+	
+	std::cout << "Number of molecules: " << file->mols.size() << std::endl;
+	
+
+	for(const auto& mol : file->mols)
+	{
+		std::cout<< mol->getNumAtoms() << std::endl;
+	}
+
+	Bioisosteres::testCall();
+
 	return 0;
 
 }
