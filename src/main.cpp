@@ -1,9 +1,7 @@
 #include <iostream>
 #include "Frag.hpp"
 #include "Bioisosteres.hpp"
-#include "Bioisosteres.cpp"
 #include "RDKMols.hpp"
-#include "RDKMols.cpp"
 
 
 int main() 
@@ -38,7 +36,8 @@ int main()
 
 	for(const auto& mol : file->mols)
 	{
-		std::cout<< mol->getNumAtoms() << std::endl;
+		auto frags = Bioisosteres::fragment_mol(*mol);
+
 	}
 
 	Bioisosteres::testCall();
