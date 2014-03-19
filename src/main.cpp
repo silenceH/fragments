@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Frag.hpp"
+#include "FragGroup.hpp"
 #include "Bioisosteres.hpp"
 #include "RDKMols.hpp"
 
@@ -41,6 +42,14 @@ int main()
 	}
 
 	Bioisosteres::testCall();
+
+	// test FragGroup object
+	FragGroup* p_group1 = new FragGroup(new_frag4); 
+
+	FragGroup* p_group2 = new FragGroup(*p_group1); 
+
+	std::cout<<"len group1 = " << p_group1->getLength() << std::endl;	
+	std::cout<<"len group2 = " << p_group2->getLength() << std::endl;	
 
 	return 0;
 
