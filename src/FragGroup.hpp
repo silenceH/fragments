@@ -20,6 +20,7 @@ class FragGroup
 
 		// constructor
 		FragGroup(Frag frag);
+		FragGroup(std::vector<sp_fragments> new_group);
 		FragGroup(std::vector<Frag> new_group);
 		
 		// methods

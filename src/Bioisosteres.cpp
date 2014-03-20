@@ -1,3 +1,4 @@
+// TODO:: add Frag to MakeFile
 // standard libraries
 #include <iostream>
 #include <vector>
@@ -16,6 +17,7 @@
 
 // custom header files
 #include "Bioisosteres.hpp"
+#include "Frag.hpp"
 
 using namespace RDKit;
 
@@ -25,12 +27,17 @@ namespace Bioisosteres{
 		std::cout << "called function" << std::endl;
 	}
 
-	std::vector<sp_fragments> fragment_mol(ROMol& mol)
+	std::vector<Frag> fragment_mol(ROMol& mol)
 	{
 		// take a dereferenced mol pointer and fragment
 		ROMol* frag = MolFragmenter::fragmentOnBRICSBonds(mol);
 		std::vector<sp_fragments> num_frags = MolOps::getMolFrags(*frag);
-		return num_frags;
+		std::vector<Frag> final_frags;
+		for(const auto& fr : num_frags)
+		{
+			final_frags.push_back(Frag(fr));
+		}
+		return final_frags;
 	}
 
 	std::vector<ROMol*> getMolsFromFile(std::string file_name)

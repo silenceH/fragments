@@ -36,7 +36,8 @@ int main()
 	for(const auto& mol : mols)
 	{
 		auto frags = Bioisosteres::fragment_mol(*mol);
-
+		FragGroup* p_group_temp = new FragGroup(frags);
+		std::cout<<"no of frags: " << p_group_temp->getLength() << std::endl;
 	}
 
 	Bioisosteres::testCall();
@@ -44,10 +45,8 @@ int main()
 	// test FragGroup object
 	FragGroup* p_group1 = new FragGroup(new_frag4); 
 
-	FragGroup* p_group2 = new FragGroup(*p_group1); 
 
 	std::cout<<"len group1 = " << p_group1->getLength() << std::endl;	
-	std::cout<<"len group2 = " << p_group2->getLength() << std::endl;	
 
 	return 0;
 
