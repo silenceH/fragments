@@ -2,7 +2,7 @@
 #include "Frag.hpp"
 #include "FragGroup.hpp"
 #include "Bioisosteres.hpp"
-#include "RDKMols.hpp"
+#include "Bioisosteres.hpp"
 
 
 int main() 
@@ -28,14 +28,12 @@ int main()
 	std::cout << smiles4 << std::endl;
 
 	// get mols 
-	RDKMols* file = new RDKMols(std::string("P39900"));
+	std::vector<ROMol *> mols = Bioisosteres::getMolsFromFile(std::string("P39900"));
 
-	std::cout << (*file).ligand << std::endl;
-	
-	std::cout << "Number of molecules: " << file->mols.size() << std::endl;
+	std::cout << "Number of molecules: " << mols.size() << std::endl;
 	
 
-	for(const auto& mol : file->mols)
+	for(const auto& mol : mols)
 	{
 		auto frags = Bioisosteres::fragment_mol(*mol);
 
