@@ -10,6 +10,9 @@
 // RDKit libraries
 #include <GraphMol/ROMol.h>
 
+// custom libraries
+#include "Frag.hpp"
+
 using namespace RDKit;
 
 typedef boost::shared_ptr<ROMol> sp_fragments;

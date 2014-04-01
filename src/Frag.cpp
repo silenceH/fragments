@@ -1,5 +1,9 @@
 #include "Frag.hpp"
 
+// rdkit headers
+#include <DataStructs/SparseIntVect.h>
+#include <GraphMol/Fingerprints/MorganFingerprints.h>
+
 // constructors
 Frag::Frag()
 {
@@ -20,23 +24,28 @@ Frag::Frag(sp_fragments fragment, std::string file_name)
 
 
 // set methods
-void Frag::setFile(std::string file_name)
+void Frag::setFile(std::string file_name) 
 {
 	file = file_name;
 }
 
-void Frag::setSmiles(std::string s)
+void Frag::setSmiles(std::string s) 
 {
 	smiles = s;
 }
 
+void Frag::setFingerprint()
+{
+	fp = MorganFingerprints::getFingerprint(*frag,2);
+}
+
 // get methods
-std::string Frag::getSmiles() 
+std::string Frag::getSmiles() const
 {
 	return smiles;
 }
 
-std::string Frag::getFile() 
+std::string Frag::getFile() const
 {
 	return file;
 }
