@@ -146,6 +146,7 @@ int main()
 					{
 						//cout << "number of pairs in section: " << section_match.size() << endl;
 						string fname = "/usr/users/people/matts/fragments/test_output/cpp/pair_" + to_string(count)+".sdf";
+						/*
 						SDWriter *writer = new SDWriter(fname);
 						for(auto const& match : section_match)
 						{
@@ -154,6 +155,7 @@ int main()
 						writer->flush();
 						writer->close();
 						delete writer;
+						*/
 						count ++;
 					}
 				}

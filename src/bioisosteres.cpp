@@ -106,13 +106,13 @@ int main()
 		frag_fps.push_back(f_fps);
 	}
 
-	// print frags and fingerprints to ensure they are the same indices	
-	std::cout<<"print frags and fingerprints to ensure they are the same indices" << std::endl;	
+	// print frags and fingerprints to ensure they are the same indices for debugging
+	/*std::cout<<"print frags and fingerprints to ensure they are the same indices" << std::endl;	
 	for(unsigned int i = 0; i < frags.size(); ++i)
 	{
 		std::cout<<"no frags: " << frags[i].size() << "\tno. fps: " << frag_fps[i].size() << std::endl;
 	}
-	
+	*/
 	int pair_count = 0;
 
 	for(unsigned int ref = 0; ref < frags.size()-1; ++ref)
@@ -147,7 +147,7 @@ int main()
 						auto q_pos = q_conf.getPositions();
 
 						// calculate distance
-						long double section_dist = 0;
+						double section_dist = 0;
 						for(const auto& r_atom : ref_pos)
 						{
 							for(const auto& q_atom : q_pos)
@@ -155,14 +155,14 @@ int main()
 								double x = r_atom.x - q_atom.x;
 								double y = r_atom.y - q_atom.y;
 								double z = r_atom.z - q_atom.z;
-								long double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
+								double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
 								// calculate gaussian overlap 
 								section_dist += exp(-pow(dist,2));
 							}
 						}
 						// calculate average overlap 
 						double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
-						long double section_score = section_dist * (2/total_atoms);
+						double section_score = section_dist * (2/total_atoms);
 						
 						// Calculate Tanimoto Similarity
 						double sim = TanimotoSimilarity(*frag_fps[ref][r_fr],*frag_fps[query][q_fr]);
@@ -179,11 +179,17 @@ int main()
 					
 				if(section_group.size() > 1)
 				{
-					std::cout << "number of pairs in section: " << section_group.size() << std::endl;
+					//std::cout << "number of pairs in section: " << section_group.size() << std::endl;
 					total_sections.push_back(section_group);
 					/*
+					BOOST_FOREACH(ROMOL_SPTR mol, section_group)
+					{
+						std::cout << "num atoms in mol: " << (*mol).getNumAtoms() << std::endl;
+					}
+					*/
+					
 					char* home = getenv("HOME");
-					string fname = std::string(home) + "fragments/test_output/cpp/pair_" + to_string(count)+".sdf";
+					std::string fname = std::string(home) + "/fragments/test_output/cpp/pair_" + std::to_string(pair_count)+".sdf";
 					SDWriter *writer = new SDWriter(fname);
 					for(auto const& match : section_group)
 					{
@@ -192,7 +198,6 @@ int main()
 					writer->flush();
 					writer->close();
 					delete writer;
-					*/
 				}
 			}
 
