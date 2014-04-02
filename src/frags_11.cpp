@@ -23,6 +23,9 @@
 #include <GraphMol/RDKitQueries.h>
 #include <GraphMol/Substruct/SubstructMatch.h>
 #include <GraphMol/Substruct/SubstructUtils.h>
+#include <GraphMol/Fingerprints/MorganFingerprints.h>
+#include <DataStructs/ExplicitBitVect.h>
+
 
 
 using namespace RDKit;
@@ -131,8 +134,15 @@ int main()
 						// calculate average overlap 
 						double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
 						long double section_score = section_dist * (2/total_atoms);
-						// test:: print average overlap if successfull otherwise print "NOT A PAIR" 
-						if (section_score > 0.7)
+						
+						SparseIntVect<boost::uint32_t> *fp_ref, *fp_q;
+
+						fp_ref = MorganFingerprints::getFingerprint(request(*ref_frag),2);
+						fp_q = MorganFingerprints::getFingerprint(request(*ref_frag),2);
+
+						double tan = TanimotoSimilarity(*fp_ref,*fp_q);
+
+						if (section_score > 0.7 && tan != 1.0)
 						{
 							section_match.push_back(q_frag);
 						}
