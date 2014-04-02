@@ -29,6 +29,10 @@ using namespace RDKit;
 using namespace std;
 
 typedef boost::shared_ptr<ROMol> sp_fragments;
+typedef boost::shared_ptr<SparseIntVect> SIV_SPTR; 
+
+
+
 class Fragment
 {
 	// insert code

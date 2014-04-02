@@ -6,6 +6,11 @@ CFLAGS=-Wall -g
 #
 #kenn:
 #	g++ -std=c++11 -o kenn kennewell_implementation.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
+
+bioisosteres :
+	g++ -std=c++11 -o bioisosteres bioisosteres.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib \
+		-lFileParsers -lGraphMol -lRDGeneral -lChemTransforms -lFingerprints -lDataStructs
+
 # need to make an object file Fragments.o 
 Frag.o : Frag.cpp Frag.hpp
 	g++ -std=c++11 -c -O Frag.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms -lFingerprints
@@ -30,4 +35,4 @@ tanimoto: Frag.o Bioisosteres.o FragGroup.o main.o
 	g++ -O -o tanimoto Frag.o Bioisosteres.o tanimoto.o -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms -lFileParsers -lFingerprints
 
 clean:
-	rm -f kenn frags_11 test file_test main
+	rm -f kenn frags_11 test file_test main test_boost
