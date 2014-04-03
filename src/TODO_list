@@ -1,0 +1,15 @@
+###############################################################
+##                                                           ##
+##            TODO LIST FOR THE DEVEL BRANCH                 ##
+##                                                           ##
+###############################################################
+
+CREATE CONSTRUCTORS AND DESTROYERS FOR:
+	FRAG
+	FRAG_GROUP
+
+CREATE FRAG_GROUP GROUP
+
+TURN RDKMOLS INTO NAMESPACE
+
+

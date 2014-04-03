@@ -1,21 +1,38 @@
 CFLAGS=-Wall -g
 
-frags:
-	g++ -std=c++11 -o frags_11 frags_11.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms -lFingerprints
-# make the test file to compile the Fragment analysis
+#frags:
+#	g++ -std=c++11 -o frags_11 frags_11.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
+## make the test file to compile the Fragment analysis
+#
+#kenn:
+#	g++ -std=c++11 -o kenn kennewell_implementation.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
 
-kenn:
-	g++ -std=c++11 -o kenn kennewell_implementation.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
+bioisosteres :
+	g++ -std=c++11 -o bioisosteres bioisosteres.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib \
+		-lFileParsers -lGraphMol -lRDGeneral -lChemTransforms -lFingerprints -lDataStructs
+	
 # need to make an object file Fragments.o 
-Fragments.o : Fragments.cpp Fragments.hpp
-	g++ -std=c++11 -c -O Fragments.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
+Frag.o : Frag.cpp Frag.hpp
+	g++ -std=c++11 -c -O Frag.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms -lFingerprints
+
+Bioisosteres.o: Bioisosteres.cpp Bioisosteres.hpp
+	g++ -std=c++11 -c -O Bioisosteres.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lFileParsers -lChemTransforms
+
+FragGroup.o: FragGroup.cpp FragGroup.hpp
+	g++ -std=c++11 -c -O FragGroup.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lFileParsers -lChemTransforms
 
 # Then we need to compile the test code
-Test_Fragments.o : Test_Fragments.cpp Fragments.hpp 
-	g++ -std=c++11 -c -O Test_Fragments.cpp
+main.o : main.cpp Frag.hpp Bioisosteres.hpp FragGroup.hpp
+	g++ -std=c++11 -c -O main.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lFileParsers -lChemTransforms -lFingerprints
 
-Test_Fragments : Fragments.o Test_Fragments.o
-	g++ -O -o Test_Fragments Fragments.o Test_Fragments.o
+main: Frag.o Bioisosteres.o FragGroup.o main.o
+	g++ -O -o main Frag.o Bioisosteres.o FragGroup.o main.o -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms -lFileParsers -lFingerprints
 	
+tanimoto.o: tanimoto.cpp Frag.hpp Bioisosteres.hpp
+	g++ -std=c++11 -c -O tanimoto.cpp -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lFileParsers -lChemTransforms -lFingerprints
+
+tanimoto: Frag.o Bioisosteres.o FragGroup.o main.o
+	g++ -O -o tanimoto Frag.o Bioisosteres.o tanimoto.o -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms -lFileParsers -lFingerprints
+
 clean:
-	rm -f kenn frags_11 test file_test
+	rm -f kenn frags_11 test file_test main tanimoto bioisosteres
