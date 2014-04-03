@@ -35,4 +35,4 @@ tanimoto: Frag.o Bioisosteres.o FragGroup.o main.o
 	g++ -O -o tanimoto Frag.o Bioisosteres.o tanimoto.o -I$(RDBASE)/Code -I$(RDBASE)/Extern -L$(RDBASE)/lib -lGraphMol -lRDGeneral -lChemTransforms -lFileParsers -lFingerprints
 
 clean:
-	rm -f kenn frags_11 test file_test main test_boost
+	rm -f kenn frags_11 test file_test main tanimoto bioisosteres

@@ -26,6 +26,11 @@ typedef std::vector<ROMOL_SPTR> MOL_FRAGS;
 
 // TODO :: CREATE A STRUCT FOR THE FRAGMENTS THAT WOULD BE ABLE TO HOLD A FRAG A FP AND A GAUSSIAN
 
+struct Frag {
+	ROMOL_SPTR frag;
+	SIV_SPTR fp;
+};
+
 void ReadMols(std::string fname, std::vector<ROMOL_SPTR> &mols)
 {
 // --------------------------------------------------------------
