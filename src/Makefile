@@ -1,7 +1,8 @@
 CFLAGS=-Wall -g
 
-#frags:
-#	g++ -std=c++11 -o frags_11 frags_11.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
+frags:
+	g++ -std=c++11 -o frags_11 frags_11.cpp -I$(RDBASE)/Code -I$(RDBASE)/EXtern -L$(RDBASE)/lib \
+		-lFileParsers -lGraphMol -lRDGeneral -lChemTransforms -lFingerprints -lDataStructs
 ## make the test file to compile the Fragment analysis
 #
 #kenn:

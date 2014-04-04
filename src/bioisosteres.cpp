@@ -143,7 +143,6 @@ int main()
 				Conformer ref_conf = ref_frag->getConformer();
 				auto ref_pos = ref_conf.getPositions();
 
-				
 				for(unsigned int q_fr = 0; q_fr < query_mol.size(); ++q_fr)
 					{
 						// get the conformer of the ref_frag
@@ -152,7 +151,7 @@ int main()
 						auto q_pos = q_conf.getPositions();
 
 						// calculate distance
-						double section_dist = 0;
+						double section_score = 0;
 						for(const auto& r_atom : ref_pos)
 						{
 							for(const auto& q_atom : q_pos)
@@ -162,37 +161,33 @@ int main()
 								double z = r_atom.z - q_atom.z;
 								double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
 								// calculate gaussian overlap 
-								section_dist += exp(-pow(dist,2));
+								section_score += exp(-pow(dist,2));
 							}
 						}
+
 						// calculate average overlap 
 						double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
-						double section_score = section_dist * (2/total_atoms);
+						double av_score = section_score * (2/total_atoms);
+
+						//debug print out
+						//std::cout<< std::setprecision(16) << av_score<<std::endl;
 						
 						// Calculate Tanimoto Similarity
 						double sim = TanimotoSimilarity(*frag_fps[ref][r_fr],*frag_fps[query][q_fr]);
-						if (section_score > 0.7 && sim != 1)
+						if (av_score > 0.7 && sim != 1)
 						{
 							// debugging print out
-							//std::cout << "kenn: " << section_score << "\tsim: " << sim << std::endl;
+							//std::cout << "kenn: " << av_score << "\tsim: " << sim << std::endl;
 							section_group.push_back(q_frag);
 							pair_count++;
 						}
 					
 					}
-			
 					
 				if(section_group.size() > 1)
 				{
 					//std::cout << "number of pairs in section: " << section_group.size() << std::endl;
 					total_sections.push_back(section_group);
-					/*
-					BOOST_FOREACH(ROMOL_SPTR mol, section_group)
-					{
-						std::cout << "num atoms in mol: " << (*mol).getNumAtoms() << std::endl;
-					}
-					*/
-					
 					char* home = getenv("HOME");
 					std::string fname = std::string(home) + "/fragments/test_output/cpp/pair_" + std::to_string(pair_count)+".sdf";
 					SDWriter *writer = new SDWriter(fname);
@@ -213,7 +208,6 @@ int main()
 
 	std::cout<<"pair count: " << pair_count << std::endl;
 	std::cout<<"group count: " << total_sections.size() << std::endl;
-		
 
 	return 0;
 }
