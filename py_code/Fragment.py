@@ -48,7 +48,7 @@ class Fragment(object):
 			# return the list of the coordinates from those positions
 			self.coords = [(atom.x,atom.y,atom.z) for atom in tmp]
 
-	def score_pairs_kennewell(self,mol2):
+	def score_pairs_kennewell(self,mol2,test=False):
 		## get number of atoms for each molecule
 		atoms_ref = self.frag.GetNumAtoms()
 		atoms_f = mol2.frag.GetNumAtoms()
@@ -60,6 +60,8 @@ class Fragment(object):
 			dist = [sqrt(pow((section_atom[0]-x[0]),2)+pow((section_atom[1]-x[1]),2)+pow((section_atom[2]-x[2]),2)) for x in mol2.coords]
 			section_score.append(sum([exp(-pow(d,2)) for d in dist]))
 		av_score = sum(section_score)*(2./(atoms_f+atoms_ref))
+		if test:
+			print "\taverage score: " + str(av_score)
 		if av_score>0.7:
 			return True 
 		else: 

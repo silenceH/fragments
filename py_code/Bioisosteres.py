@@ -75,7 +75,7 @@ def merge_frag_groups(ref_group,merge_group):
 			add_group.append(mol)
 	return ref_group.extend(add_group)
 
-def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
+def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test,debug=False):
 	## gets bioisosteric pairs from an sdf file
 	## data_file : string of data file without .sdf
 	## noHs : specifies whether Hs are to be removed (boolean)
@@ -110,6 +110,10 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 					else: 
 						candidate = score_pairs_TD(s,f)		## Tanimoto distance
 					if candidate and not s.are_similar(f,1.0): 
+						if debug:
+							print "pair: " + str(count+1)
+							print "Ref: " + str(i) + "\tfrag: " + str(ref_frag.index(s))
+							print "Query: " + str(i+query_set.index(q)) + "\tfrag: " + str(frags.index(f))
 						section_group.add(f)
 						count += 1
 				if section_group.size() > 1:
@@ -160,6 +164,7 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test):
 		f.write(str(i+1) + "\t" + str(grouped[i].size()) + "\t" + str(av_sim)+"\n")
 		total_sim_of_groups += av_sim
 	f.write("\naverage similarity over the group: " + str(total_sim_of_groups/len(grouped)) + "\n\n")
+	print "no pairs: " + str(count)
 	return grouped
 
 def collect_bioisosteres(*args):
@@ -211,6 +216,20 @@ def collect_bioisosteres(*args):
 	print "statistics written"
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	return final_collection
+
+def debug_bioisosteres(file_name):
+	mols = get_mols_from_sdf_file(file_name,True)
+	ref_mol = get_fragments(mols[0],True,False)
+	query_mol = get_fragments(mols[1],True,False)
+	print "num ref frags: " + str(len(ref_mol))
+	print "num query frags: " + str(len(query_mol))
+	for r in ref_mol: 
+		print "i am reference fragment: " + str(ref_mol.index(r))
+		for q in query_mol:
+			print "\ti am query fragment: " + str(query_mol.index(q))
+			candidate = r.score_pairs_kennewell(q,test=True) 	## Kennewell scores
+
+
 
 
 def collect_bioisosteres_by_smiles(*args):

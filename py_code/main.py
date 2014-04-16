@@ -11,7 +11,7 @@ file_8 = 'P43235'
 file_9 = 'Q00511'
 file_10 = 'P16184'
 
-get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = False)
+#get_bioisosteres(file_1, noHs=False, brics=True, kennewell = True, overlap = False, test = False)
 #collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 #collect_bioisosteres_by_smiles(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
 #get_bioisosteres(file_2, noHs=True, brics=True, kennewell = True, overlap = False, test = True)
@@ -61,6 +61,13 @@ get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = Fals
 #two_dim_similars(file_8, 0.7)
 #two_dim_similars(file_9, 0.7)
 #two_dim_similars(file_10, 0.7)
+
+############################
+#      debug for c++       #
+############################
+
+#debug_bioisosteres(file_1)
+get_bioisosteres(file_1, noHs=True, brics=True, kennewell = True, overlap = False, test = True,debug=True)
 
 ## TODO:: ARE THE SMILES OR TANIMOTO EFFECTED BY THE DUMMY ATOM FROM THE FRAGMENTATION???
 ## TODO:: SPLIT OVER FILES RELATING TO TASK AND LEAVE ONE TEST FILE TO TEST CODE
