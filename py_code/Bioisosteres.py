@@ -93,10 +93,10 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test,debug=False):
 	## create a list of fragment objects here
 	mols = [get_fragments(mol,brics,data_file) for mol in mols]	
 	## for a reference molecule mol in mols
-	for i in range(len(mols)):
+	for i in range(len(mols)-1):
 		## set query data set to be the molecules that are not the reference
 		ref_frag = mols[i] 			# a list of Fragment objects
-		query_set = mols[i:]
+		query_set = mols[i+1:]
 		## for each remaining ligand make it the query ligand
 		for q in query_set:
 			frags = q
