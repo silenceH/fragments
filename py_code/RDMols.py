@@ -3,7 +3,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 from Fragment import * 
 
-def get_mols_from_sdf_file(data_file, noHs):
+def get_mols_from_sdf_file(data_file, noHs=True):
 	## Method to return molecules for a given sdf data file
 	try:
 		data = os.environ['DATA']		## get data env
@@ -17,7 +17,7 @@ def get_mols_from_sdf_file(data_file, noHs):
 		suppl = Chem.SDMolSupplier(data + '/validation_overlays/'+data_file+'.sdf',removeHs=False)
 	return [x for x in suppl if x is not None]
 
-def get_fragments(mol,brics,data_file):
+def get_fragments(mol,brics,data_file=""):
 	## returns a list of non overlapping fragments.
 	## if brics == True then returns the BRICS fragments
 	if brics: 

@@ -1,0 +1,375 @@
+pair: 1
+Ref: 1	frag: 0
+Query: 2	frag: 1
+pair: 2
+Ref: 1	frag: 1
+Query: 2	frag: 0
+pair: 3
+Ref: 1	frag: 1
+Query: 4	frag: 3
+pair: 4
+Ref: 1	frag: 0
+Query: 5	frag: 3
+pair: 5
+Ref: 1	frag: 1
+Query: 7	frag: 2
+pair: 6
+Ref: 1	frag: 1
+Query: 8	frag: 1
+pair: 7
+Ref: 1	frag: 1
+Query: 9	frag: 2
+pair: 8
+Ref: 1	frag: 0
+Query: 10	frag: 3
+pair: 9
+Ref: 1	frag: 1
+Query: 10	frag: 0
+pair: 10
+Ref: 1	frag: 1
+Query: 11	frag: 0
+pair: 11
+Ref: 1	frag: 1
+Query: 12	frag: 0
+pair: 12
+Ref: 1	frag: 1
+Query: 13	frag: 2
+pair: 13
+Ref: 1	frag: 1
+Query: 14	frag: 0
+pair: 14
+Ref: 1	frag: 0
+Query: 15	frag: 4
+pair: 15
+Ref: 1	frag: 1
+Query: 15	frag: 3
+pair: 16
+Ref: 1	frag: 1
+Query: 16	frag: 0
+pair: 17
+Ref: 2	frag: 3
+Query: 2	frag: 4
+pair: 18
+Ref: 2	frag: 4
+Query: 2	frag: 3
+pair: 19
+Ref: 2	frag: 2
+Query: 3	frag: 6
+pair: 20
+Ref: 2	frag: 4
+Query: 3	frag: 0
+pair: 21
+Ref: 2	frag: 0
+Query: 4	frag: 3
+pair: 22
+Ref: 2	frag: 1
+Query: 5	frag: 3
+pair: 23
+Ref: 2	frag: 0
+Query: 7	frag: 2
+pair: 24
+Ref: 2	frag: 0
+Query: 8	frag: 1
+pair: 25
+Ref: 2	frag: 0
+Query: 9	frag: 2
+pair: 26
+Ref: 2	frag: 0
+Query: 10	frag: 0
+pair: 27
+Ref: 2	frag: 1
+Query: 10	frag: 3
+pair: 28
+Ref: 2	frag: 0
+Query: 11	frag: 0
+pair: 29
+Ref: 2	frag: 0
+Query: 12	frag: 0
+pair: 30
+Ref: 2	frag: 0
+Query: 13	frag: 2
+pair: 31
+Ref: 2	frag: 1
+Query: 15	frag: 4
+pair: 32
+Ref: 2	frag: 0
+Query: 16	frag: 0
+pair: 33
+Ref: 3	frag: 0
+Query: 3	frag: 3
+pair: 34
+Ref: 3	frag: 3
+Query: 3	frag: 0
+pair: 35
+Ref: 3	frag: 3
+Query: 3	frag: 4
+pair: 36
+Ref: 3	frag: 4
+Query: 3	frag: 3
+pair: 37
+Ref: 3	frag: 5
+Query: 10	frag: 3
+pair: 38
+Ref: 3	frag: 5
+Query: 15	frag: 4
+pair: 39
+Ref: 4	frag: 0
+Query: 4	frag: 1
+pair: 40
+Ref: 4	frag: 1
+Query: 4	frag: 0
+pair: 41
+Ref: 4	frag: 2
+Query: 6	frag: 2
+pair: 42
+Ref: 4	frag: 0
+Query: 7	frag: 1
+pair: 43
+Ref: 4	frag: 2
+Query: 7	frag: 0
+pair: 44
+Ref: 4	frag: 3
+Query: 7	frag: 2
+pair: 45
+Ref: 4	frag: 2
+Query: 8	frag: 2
+pair: 46
+Ref: 4	frag: 0
+Query: 9	frag: 1
+pair: 47
+Ref: 4	frag: 2
+Query: 9	frag: 0
+pair: 48
+Ref: 4	frag: 0
+Query: 10	frag: 1
+pair: 49
+Ref: 4	frag: 2
+Query: 10	frag: 2
+pair: 50
+Ref: 4	frag: 2
+Query: 11	frag: 2
+pair: 51
+Ref: 4	frag: 3
+Query: 11	frag: 0
+pair: 52
+Ref: 4	frag: 0
+Query: 12	frag: 1
+pair: 53
+Ref: 4	frag: 2
+Query: 12	frag: 2
+pair: 54
+Ref: 4	frag: 3
+Query: 12	frag: 0
+pair: 55
+Ref: 4	frag: 0
+Query: 13	frag: 1
+pair: 56
+Ref: 4	frag: 2
+Query: 13	frag: 0
+pair: 57
+Ref: 4	frag: 3
+Query: 14	frag: 0
+pair: 58
+Ref: 4	frag: 2
+Query: 15	frag: 0
+pair: 59
+Ref: 4	frag: 1
+Query: 16	frag: 3
+pair: 60
+Ref: 4	frag: 2
+Query: 16	frag: 2
+pair: 61
+Ref: 5	frag: 0
+Query: 6	frag: 2
+pair: 62
+Ref: 5	frag: 2
+Query: 7	frag: 2
+pair: 63
+Ref: 5	frag: 2
+Query: 11	frag: 0
+pair: 64
+Ref: 6	frag: 0
+Query: 7	frag: 2
+pair: 65
+Ref: 6	frag: 2
+Query: 7	frag: 0
+pair: 66
+Ref: 6	frag: 2
+Query: 8	frag: 2
+pair: 67
+Ref: 6	frag: 2
+Query: 10	frag: 2
+pair: 68
+Ref: 6	frag: 0
+Query: 11	frag: 0
+pair: 69
+Ref: 6	frag: 2
+Query: 11	frag: 2
+pair: 70
+Ref: 6	frag: 0
+Query: 12	frag: 0
+pair: 71
+Ref: 6	frag: 2
+Query: 12	frag: 2
+pair: 72
+Ref: 6	frag: 2
+Query: 13	frag: 0
+pair: 73
+Ref: 6	frag: 0
+Query: 14	frag: 0
+pair: 74
+Ref: 6	frag: 2
+Query: 15	frag: 0
+pair: 75
+Ref: 6	frag: 2
+Query: 16	frag: 2
+pair: 76
+Ref: 7	frag: 1
+Query: 8	frag: 0
+pair: 77
+Ref: 7	frag: 2
+Query: 8	frag: 1
+pair: 78
+Ref: 7	frag: 0
+Query: 9	frag: 0
+pair: 79
+Ref: 7	frag: 2
+Query: 9	frag: 2
+pair: 80
+Ref: 7	frag: 2
+Query: 10	frag: 0
+pair: 81
+Ref: 7	frag: 1
+Query: 11	frag: 1
+pair: 82
+Ref: 7	frag: 2
+Query: 11	frag: 0
+pair: 83
+Ref: 7	frag: 2
+Query: 12	frag: 0
+pair: 84
+Ref: 7	frag: 2
+Query: 13	frag: 2
+pair: 85
+Ref: 7	frag: 2
+Query: 14	frag: 0
+pair: 86
+Ref: 7	frag: 2
+Query: 15	frag: 3
+pair: 87
+Ref: 7	frag: 1
+Query: 16	frag: 1
+pair: 88
+Ref: 7	frag: 2
+Query: 16	frag: 0
+pair: 89
+Ref: 8	frag: 0
+Query: 9	frag: 1
+pair: 90
+Ref: 8	frag: 2
+Query: 9	frag: 0
+pair: 91
+Ref: 8	frag: 1
+Query: 11	frag: 0
+pair: 92
+Ref: 8	frag: 0
+Query: 12	frag: 1
+pair: 93
+Ref: 8	frag: 1
+Query: 12	frag: 0
+pair: 94
+Ref: 8	frag: 0
+Query: 13	frag: 1
+pair: 95
+Ref: 8	frag: 1
+Query: 14	frag: 0
+pair: 96
+Ref: 8	frag: 3
+Query: 16	frag: 3
+pair: 97
+Ref: 9	frag: 0
+Query: 10	frag: 2
+pair: 98
+Ref: 9	frag: 0
+Query: 11	frag: 2
+pair: 99
+Ref: 9	frag: 1
+Query: 11	frag: 1
+pair: 100
+Ref: 9	frag: 2
+Query: 11	frag: 0
+pair: 101
+Ref: 9	frag: 0
+Query: 12	frag: 2
+pair: 102
+Ref: 9	frag: 2
+Query: 12	frag: 0
+pair: 103
+Ref: 9	frag: 0
+Query: 13	frag: 0
+pair: 104
+Ref: 9	frag: 2
+Query: 14	frag: 0
+pair: 105
+Ref: 9	frag: 0
+Query: 15	frag: 0
+pair: 106
+Ref: 9	frag: 0
+Query: 16	frag: 2
+pair: 107
+Ref: 9	frag: 1
+Query: 16	frag: 1
+pair: 108
+Ref: 10	frag: 0
+Query: 11	frag: 0
+pair: 109
+Ref: 10	frag: 1
+Query: 11	frag: 1
+pair: 110
+Ref: 10	frag: 0
+Query: 12	frag: 0
+pair: 111
+Ref: 10	frag: 1
+Query: 15	frag: 2
+pair: 112
+Ref: 11	frag: 1
+Query: 12	frag: 1
+pair: 113
+Ref: 11	frag: 0
+Query: 13	frag: 2
+pair: 114
+Ref: 11	frag: 1
+Query: 13	frag: 1
+pair: 115
+Ref: 11	frag: 0
+Query: 14	frag: 0
+pair: 116
+Ref: 11	frag: 0
+Query: 15	frag: 3
+pair: 117
+Ref: 11	frag: 0
+Query: 16	frag: 0
+pair: 118
+Ref: 12	frag: 0
+Query: 13	frag: 2
+pair: 119
+Ref: 12	frag: 0
+Query: 14	frag: 0
+pair: 120
+Ref: 12	frag: 0
+Query: 15	frag: 3
+pair: 121
+Ref: 12	frag: 0
+Query: 16	frag: 0
+pair: 122
+Ref: 12	frag: 1
+Query: 16	frag: 1
+pair: 123
+Ref: 13	frag: 2
+Query: 14	frag: 0
+pair: 124
+Ref: 13	frag: 1
+Query: 16	frag: 1
+pair: 125
+Ref: 14	frag: 0
+Query: 16	frag: 0
