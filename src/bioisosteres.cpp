@@ -88,7 +88,7 @@ void BuildFps(const std::vector<ROMOL_SPTR> &mols, std::vector<SIV_SPTR> &finger
 	}
 }
 
-void getBioiosteres(std::string file_name, std::vector<std::vector <ROMOL_SPTR> > &final_group, bool debug=false)
+void getBioiosteres(std::string file_name, std::vector<std::vector <ROMOL_SPTR> > &final_group, bool debug=false,bool debug_out=false)
 {
 	std::vector<ROMOL_SPTR> mols;
 	std::vector<MOL_FRAGS> frags;
@@ -121,24 +121,27 @@ void getBioiosteres(std::string file_name, std::vector<std::vector <ROMOL_SPTR> 
 	*/
 	int pair_count = 0;
 
-	//for(unsigned int ref = 0; ref < frags.size()-1; ++ref)
-	for(unsigned int ref = 0; ref < 1; ++ref)
+	for(unsigned int ref = 0; ref < frags.size()-1; ++ref)
 	{
 		MOL_FRAGS ref_mol = frags[ref];
-		std::cout << "num ref frags: " << ref_mol.size() << std::endl;
+		if (debug)
+			std::cout << "ref ligand: " << ref << std::endl;
 
-		//for(unsigned int query = ref+1; query < frags.size(); ++query)
-		for(unsigned int query = 1; query < 2; ++query)
+		for(unsigned int query = ref; query < frags.size(); ++query)
 		{
 			MOL_FRAGS query_mol = frags[query];
-			std::cout << "num query frags: " << query_mol.size() << std::endl;
+			if (debug)
+				std::cout << "query ligand: " << query << std::endl;
+
 			// for each fragment in a reference molecule
 			// produce the section score
 			// get vector of coordinates
 
 			for(unsigned int r_fr = 0; r_fr < ref_mol.size(); ++r_fr)
 			{
-				std::cout << "i am reference fragment: " << r_fr << std::endl;
+				if (debug)
+					std::cout << "i am reference fragment: " << r_fr << std::endl;
+
 				ROMOL_SPTR ref_frag = ref_mol[r_fr];
 
 				// create a vector of group pairs
@@ -151,7 +154,9 @@ void getBioiosteres(std::string file_name, std::vector<std::vector <ROMOL_SPTR> 
 
 				for(unsigned int q_fr = 0; q_fr < query_mol.size(); ++q_fr)
 					{
-						std::cout << "\ti am query fragment: " << q_fr << std::endl;
+						if (debug)
+							std::cout << "\ti am query fragment: " << q_fr << std::endl;
+
 						// get the conformer of the ref_frag
 						ROMOL_SPTR q_frag = query_mol[q_fr];
 						Conformer q_conf = q_frag->getConformer();
@@ -178,16 +183,20 @@ void getBioiosteres(std::string file_name, std::vector<std::vector <ROMOL_SPTR> 
 						double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
 						double av_score = section_score * (2/total_atoms);
 
-						std::cout << "\taverage score: " << std::setprecision(16) << av_score<<std::endl;
+						if (debug)
+							std::cout << "\taverage score: " << std::setprecision(16) << av_score<<std::endl;
 						
 						// Calculate Tanimoto Similarity
 						double sim = TanimotoSimilarity(*frag_fps[ref][r_fr],*frag_fps[query][q_fr]);
 						if (av_score > 0.7 && sim != 1)
 						{
-							// debugging print out
-							//std::cout << "kenn: " << av_score << "\tsim: " << sim << std::endl;
 							section_group.push_back(q_frag);
 							pair_count++;
+							if(debug_out){
+								std::cout<<"pair: " << pair_count << std::endl;
+								std::cout<<"Ref: " << ref << "\tfrag: "<<r_fr<<std::endl;
+								std::cout<<"Query: " << query << "\tfrag: "<<q_fr<<std::endl;
+							}
 						}
 					
 					}

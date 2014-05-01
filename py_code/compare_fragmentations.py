@@ -51,4 +51,4 @@ write_to_file(kennewell_overlap_frags,"kennewell_overlap",directory)
 
 draw_mols_to_png(brics,"brics",directory)
 draw_mols_to_png(kennewell,"kennewell",directory)
-draw_mols_to_png(kennewell_overlap,"kennewell_overlap",directory)
+draw_mols_to_png(kennewell_overlap_frags,"kennewell_overlap_frags",directory)
