@@ -11,9 +11,11 @@ class Fragment(object):
 	## fp : the RDKit Morgan 2 fingerprint for Tanimoto comparison
 	## smiles : canonical smiles representation
 	##
-	def __init__(self, frag,ligand, coords = None, fp=None,smiles=None):
+	def __init__(self, frag,ligand = None, coords = None, fp=None,smiles=None):
 		self.frag = frag
 
+		if ligand is None:
+			self.ligand = ligand
 		self.ligand = ligand
 
 		if coords is None:

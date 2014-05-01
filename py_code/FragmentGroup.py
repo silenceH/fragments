@@ -3,7 +3,7 @@ from Fragment import *
 class Group(object):
 	## a group of fragments as a list in order to make the 
 	## management of fragment groups easier
-	def __init__(self,first_frag):
+	def __init__(self,first_frag=None):
 		if first_frag is None:
 			self.group = []
 		else:

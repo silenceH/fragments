@@ -15,21 +15,20 @@ def get_overlapping_fragments(mol):
 	bond_smarts = Chem.MolFromSmarts('[!$([NH]!@C(=O))&!D1&!$(*#*)]-&!@[!$([NH]!@C(=O))&!D1&!$(*#*)]') ## rotatable bonds
 	if mol.GetSubstructMatches(bond_smarts):
 		num_bonds = len(mol.GetSubstructMatches(bond_smarts))
-		final_frags = []
+		final_frags = Group()
 		for i in range(num_bonds):
 			test_mol_frags = get_i_fragment_from_smarts(mol,bond_smarts,i)
 			if test_mol_frags is not None:
-				final_frags.extend(test_mol_frags)
-				while(len(test_mol_frags)>0):
-					temp_frags = []
-					for temp_mol in test_mol_frags:
-						temp = get_i_fragment_from_smarts(temp_mol,bond_smarts,0)
+				final_frags.merge(test_mol_frags)
+				while(test_mol_frags.size()>0):
+					temp_frags = Group()
+					for temp_mol in test_mol_frags.group:
+						temp = get_i_fragment_from_smarts(temp_mol.frag,bond_smarts,0)
 						if temp is not None:
-							temp_frags.extend(temp)
-					temp_frags = [x for x in temp_frags if x is not None]
-					final_frags.extend(temp_frags)
+							temp_frags.merge(temp)
+					final_frags.merge(temp_frags)
 					test_mol_frags=temp_frags
-		return final_frags
+		return final_frags.group
 	return []
 
 ## TODO :: update this method for Fragment object
@@ -40,7 +39,10 @@ def get_i_fragment_from_smarts(mol,smarts,i):
 		bonds = mol.GetSubstructMatches(smarts)
 		bonds = [((x,y),(0,0)) for x,y in bonds]
 		frags = list(Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=[bonds[i]]),asMols=True))
-		return frags
+		frag_group = Group()
+		for tmp_frag in frags:
+			frag_group.add(Fragment(tmp_frag))
+		return frag_group
 
 ## TODO :: update this method for Fragment object
 def get_section_set(sections):

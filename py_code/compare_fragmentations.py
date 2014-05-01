@@ -36,8 +36,6 @@ brics = [get_fragments(x,brics=True) for x in mols]
 kennewell = [get_fragments(x,brics=False) for x in mols]
 kennewell_overlap = [get_overlapping_fragments(x) for x in mols]
 
-kennewell_overlap_frags = list(map((lambda x: Fragment(x,"")),kennewell_overlap))
-kennewell_overlap_frags = [[Fragment(x,"") for x in mol] for mol in kennewell_overlap]
 
 print "brics: " + str(sum([len(x) for x in brics]))
 print "kennewell: " + str(sum([len(x) for x in kennewell]))
@@ -53,8 +51,8 @@ except OSError:
 	
 write_to_file(brics,"brics",directory)
 write_to_file(kennewell,"kennewell",directory)
-write_to_file(kennewell_overlap_frags,"kennewell_overlap",directory)
+write_to_file(kennewell_overlap,"kennewell_overlap",directory)
 
 draw_mols_to_png(brics,"brics",directory)
 draw_mols_to_png(kennewell,"kennewell",directory)
-draw_mols_to_png(kennewell_overlap_frags,"kennewell_overlap_frags",directory)
+draw_mols_to_png(kennewell_overlap,"kennewell_overlap",directory)
