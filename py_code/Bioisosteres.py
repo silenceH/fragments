@@ -13,28 +13,33 @@ def get_overlapping_fragments(mol):
 	## bond_smarts = Chem.MolFromSmarts("[*]!@!#!=[*]")	## single bonds
 	## bond_smarts = Chem.MolFromSmarts('[!$(*#*)&!D1]-&!@[!$(*#*)&!D1]') ## simple rotatable bond smarts
 	bond_smarts = Chem.MolFromSmarts('[!$([NH]!@C(=O))&!D1&!$(*#*)]-&!@[!$([NH]!@C(=O))&!D1&!$(*#*)]') ## rotatable bonds
-	test_mol_frags = get_first_fragment_from_smarts(mol,bond_smarts)
-	final_frags = []
-	final_frags.extend(test_mol_frags)
-	while(len(test_mol_frags)>0):
-		temp_frags = []
-		for mol in test_mol_frags:
-			temp = get_first_fragment_from_smarts(mol,bond_smarts)
-			if temp is not None:
-				temp_frags.extend(temp)
-		temp_frags = [x for x in temp_frags if x is not None]
-		final_frags.extend(temp_frags)
-		test_mol_frags=temp_frags
-	return final_frags
+	if mol.GetSubstructMatches(bond_smarts):
+		num_bonds = len(mol.GetSubstructMatches(bond_smarts))
+		final_frags = []
+		for i in range(num_bonds):
+			test_mol_frags = get_i_fragment_from_smarts(mol,bond_smarts,i)
+			if test_mol_frags is not None:
+				final_frags.extend(test_mol_frags)
+				while(len(test_mol_frags)>0):
+					temp_frags = []
+					for temp_mol in test_mol_frags:
+						temp = get_i_fragment_from_smarts(temp_mol,bond_smarts,0)
+						if temp is not None:
+							temp_frags.extend(temp)
+					temp_frags = [x for x in temp_frags if x is not None]
+					final_frags.extend(temp_frags)
+					test_mol_frags=temp_frags
+		return final_frags
+	return []
 
 ## TODO :: update this method for Fragment object
-def get_first_fragment_from_smarts(mol,smarts):
+def get_i_fragment_from_smarts(mol,smarts,i):
 	## fragments a molecule at first occurence of smarts 
 	## note that smarts is a RDMol Object
 	if mol.GetSubstructMatches(smarts):
 		bonds = mol.GetSubstructMatches(smarts)
 		bonds = [((x,y),(0,0)) for x,y in bonds]
-		frags = list(Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=[bonds[0]]),asMols=True))
+		frags = list(Chem.GetMolFrags(BRICS.BreakBRICSBonds(mol,bonds=[bonds[i]]),asMols=True))
 		return frags
 
 ## TODO :: update this method for Fragment object

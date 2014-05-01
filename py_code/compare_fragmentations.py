@@ -23,6 +23,12 @@ def write_to_file(fragged_mol,title,directory):
 ## get mols
 mols = get_mols_from_sdf_file(file_1)
 
+#new_frags = get_overlapping_fragments(mols[14])
+#
+#print "total overlapping fragments: " + str(len(new_frags))
+#
+#for mol in new_frags:
+#	print mol.GetNumAtoms()
 
 ## get fragments
 
