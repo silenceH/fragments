@@ -31,7 +31,6 @@ def get_overlapping_fragments(mol):
 		return final_frags.group
 	return []
 
-## TODO :: update this method for Fragment object
 def get_i_fragment_from_smarts(mol,smarts,i):
 	## fragments a molecule at first occurence of smarts 
 	## note that smarts is a RDMol Object
@@ -202,8 +201,8 @@ def collect_bioisosteres(*args):
 			final_collection.append(q_frags)
 		collection= collection[1:]
 	lig_per_group = [set([frag.ligand for frag in frag_group.group]) for frag_group in final_collection]
-	#for i in range(len(final_collection)):
-		#print str(i) + "\t" + str(len(final_collection[i])) + "\t" + str(list(lig_per_group[i]))
+	for i in range(len(final_collection)):
+		print str(i) + "\t" + str(final_collection[i].size()) + "\t" + str(list(lig_per_group[i]))
 	directory = '../test_output/compared_results_NO_SMILES/' 
 	try: 
 		os.makedirs(directory)
@@ -216,9 +215,73 @@ def collect_bioisosteres(*args):
 	for i in args:
 		f.write(i + ",\n")
 	f.write("total," +  str(len(final_collection))+",\n")
-	f.write("group,number,\n")
+	f.write("group,number,ligand_sets,av_sim,\n")
 	for i in range(len(final_collection)):
-		f.write(str(i+1) + "," + str(final_collection[i].size())+",\n")
+		f.write(str(i+1) + "," + str(final_collection[i].size())+ "," + str(len(lig_per_group[i]))+ "," + \
+				str(final_collection[i].get_av_similarity()) + ",\n")
+	f.close()
+	print "statistics written"
+	draw_mols_to_png(final_collection,'final_collection',directory)
+	return final_collection
+
+def collect_bioisosteres_greedy(*args):
+	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
+	## NOTE:: this gives a list of Group objects
+	## reduce to give a one dimesional list of groups
+	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
+	final_collection = [collection[0]] 
+	collection= collection[1:]
+	print " number of groups to compare: " + str(len(collection)+ 1)
+	finished = False
+	while not finished:
+		tmp_changes = 0
+		original_len = len(collection) + 1
+		print "comparing..."
+		while len(collection) > 0: 
+			## compares each fragment in the group to those in the final collection 
+			not_extended = True
+			q_frags = collection[0]
+			for ref_frags in final_collection:
+				match = False
+				for ref,q in ((m1,m2) for m1 in ref_frags.group for m2 in q_frags.group):
+					if ref.are_similar(q,1.):
+						match = True
+						break
+				if match:
+					# need to merge so that mols are not duplicated
+					ref_frags.merge(q_frags)
+					not_extended = False
+			if not_extended:
+				final_collection.append(q_frags)
+			collection= collection[1:]
+		new_len = len(final_collection)
+		changes = original_len - new_len
+		if changes == 0:
+			finished = True
+		else:
+			collection = final_collection
+			final_collection = [collection[0]] 
+			collection= collection[1:]
+
+	lig_per_group = [set([frag.ligand for frag in frag_group.group]) for frag_group in final_collection]
+	for i in range(len(final_collection)):
+		print str(i) + "\t" + str(final_collection[i].size()) + "\t" + str(list(lig_per_group[i]))
+	directory = '../test_output/compared_results_NO_SMILES/greedy/' 
+	try: 
+		os.makedirs(directory)
+		print "created new directory: " + directory
+	except OSError:
+		print directory + " already exists."	
+	write_mols_to_file(final_collection,'final_collection',directory)
+	f = open(directory+"stats.csv",'w')
+	f.write("files,\n")
+	for i in args:
+		f.write(i + ",\n")
+	f.write("total," +  str(len(final_collection))+",\n")
+	f.write("group,number,ligand_sets,av_sim,\n")
+	for i in range(len(final_collection)):
+		f.write(str(i+1) + "," + str(final_collection[i].size())+ "," + str(len(lig_per_group[i]))+ "," + \
+				str(final_collection[i].get_av_similarity()) + ",\n")
 	f.close()
 	print "statistics written"
 	draw_mols_to_png(final_collection,'final_collection',directory)
@@ -299,12 +362,18 @@ def collect_bioisosteres_by_smiles(*args):
 	print "pictures drawn"
 	return final_collection
 
-def two_dim_similars(data_file,threshold):
+def two_dim_similars(data_file,threshold,full_screen=False):
 	mols = get_mols_from_sdf_file(data_file,True)
 	fragments = [] 
 	## obtain 1 dimensional list of fragments
 	for m in mols:
 		fragments.extend(get_fragments(m,True,data_file))
+	
+	## obtain average fragment size and statistics
+	num_atoms = [f.frag.GetNumAtoms() for f in fragments]
+	min_num_atoms = min(num_atoms)
+	max_num_atoms = max(num_atoms)
+	av_num_atoms = sum(num_atoms)/len(num_atoms)
 	
 	## obtain upper triangular boolean matrix based on similarity test
 	sim_matrix = []
@@ -313,7 +382,12 @@ def two_dim_similars(data_file,threshold):
 		row = [fragments[i].are_similar(fragments[j],threshold) and not fragments[i].are_similar(fragments[j],1) for j in range(len(fragments)) if j > i]
 		sim_matrix.append(row)
 	pairs = [(x,y+1+x) for x in range(len(sim_matrix)) for y in range(len(sim_matrix[x])) if sim_matrix[x][y]]
+	## Output data about the fragments and the pairs
 	print data_file
+	print "number of fragments: " + str(len(fragments))
+	print "largest fragment: " + str(max_num_atoms)
+	print "smallest fragment: " + str(min_num_atoms)
+	print "average number size: " + str(av_num_atoms)
 	print "there are " + str(len(pairs)) + " pairs at threshold " + str(threshold) + " that are not identical."
 	final = []
 	for pair in pairs:
@@ -344,24 +418,36 @@ def two_dim_similars(data_file,threshold):
 	except IndexError:
 		print "EXIT PROGRAMME!"
 		return
-	## get pairs from files 1 to 10 
-	test_set = collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
-	valid_groups = []
-	for i in xrange(len(test_set)):
-		group = test_set[i]
-		all_in_group = True
-		count = 0	
-		for q in unique_pairs:
-			mol_in_group = False
-			for ref in group:
-				if ref.are_similar(q,1):
-					mol_in_group = True
-			all_in_group = all_in_group and mol_in_group
-		if all_in_group:
-				valid_groups.append(i+1)
-	f = open(directory+data_file+"_valid groups",'w')
-	f.write("valid groups: \n") 
-	for group in valid_groups:
-		f.write(str(group)+"\n")
-	print "\n\n\n"
+	## compare fragments against full screen 
+	if full_screen:
+		## get pairs from files 1 to 10 
+		file_1 = 'P39900' 
+		file_2 = 'P56817'
+		file_3 = 'P35557'
+		file_4 = 'Q92731'
+		file_5 = 'P25440'
+		file_6 = 'P00918'
+		file_7 = 'P0AE18'
+		file_8 = 'P43235'
+		file_9 = 'Q00511'
+		file_10 = 'P16184'
+		test_set = collect_bioisosteres(file_1,file_2,file_3,file_4,file_5,file_6,file_7,file_8,file_9,file_10)
+		valid_groups = []
+		for i in xrange(len(test_set)):
+			test_group = test_set[i]
+			all_in_group = True
+			count = 0	
+			for q in unique_pairs:
+				mol_in_group = False
+				for ref in test_group.group:
+					if ref.are_similar(q,1):
+						mol_in_group = True
+				all_in_group = all_in_group and mol_in_group
+			if all_in_group:
+					valid_groups.append(i+1)
+		f = open(directory+data_file+"_valid groups",'w')
+		f.write("valid groups: \n") 
+		for g in valid_groups:
+			f.write(str(g)+"\n")
+		print "\n\n\n"
 

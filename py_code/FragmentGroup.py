@@ -56,4 +56,4 @@ class Group(object):
 		for i in range(num_mols):
 			row = (DataStructs.TanimotoSimilarity(self.get_mol(i).fp,self.get_mol(j).fp) for j in range(num_mols) if j > i)
 			total_sim += sum(row)
-		return total_sim/num_mols
+		return 2*total_sim/(num_mols**2 - num_mols)
