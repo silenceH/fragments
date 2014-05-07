@@ -81,7 +81,7 @@ def merge_frag_groups(ref_group,merge_group):
 			add_group.append(mol)
 	return ref_group.extend(add_group)
 
-def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test,debug=False):
+def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=False,test=False,return_pairs=False,debug=False):
 	## gets bioisosteric pairs from an sdf file
 	## data_file : string of data file without .sdf
 	## noHs : specifies whether Hs are to be removed (boolean)
@@ -93,8 +93,9 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test,debug=False):
 	## import mols from data_file 
 	mols = get_mols_from_sdf_file(data_file,noHs)
 	# list of candidate bioisosteric pairs to view individual pairs if needed commented out
-	# candidate_pairs = []
+	candidate_pairs = []
 	grouped = []
+	pairs = []
 	count = 0
 	## create a list of fragment objects here
 	mols = [get_fragments(mol,brics,data_file) for mol in mols]	
@@ -120,10 +121,13 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test,debug=False):
 							print "pair: " + str(count+1)
 							print "Ref: " + str(i) + "\tfrag: " + str(ref_frag.index(s))
 							print "Query: " + str(i+query_set.index(q)) + "\tfrag: " + str(frags.index(f))
+						if return_pairs:
+							pair = Group(s)
+							pair.add(f)
+							candidate_pairs.append(pair)
 						section_group.add(f)
 						count += 1
 				if section_group.size() > 1:
-					#candidate_pairs.append(section_group)
 					in_grouped = False
 					for x in grouped:
 						if section_group.get_mol(0) in x.group:
@@ -144,15 +148,18 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test,debug=False):
 	except OSError:
 		print directory + " already exists."	
 	if not test: 
+		if return_pairs:
+			write_mols_to_file(candidate_pairs,'pair',directory)
 		# write groups to file
 		write_mols_to_file(grouped,'final_group',directory)
 		
+		if return_pairs:
+			draw_mols_to_png(candidate_pairs,'pair',directory)
 		# draw mols to png
 		draw_mols_to_png(grouped,'final_group',directory)
 	
 	## produce statistics and write to file ## 
 	f = open(directory+"stats",'w')
-	## potential stats
 	## number of fragments with overlapping scheme?? 
 
 	total_sim_of_groups = 0
@@ -171,6 +178,10 @@ def get_bioisosteres(data_file,noHs,brics, kennewell,overlap,test,debug=False):
 		total_sim_of_groups += av_sim
 	f.write("\naverage similarity over the group: " + str(total_sim_of_groups/len(grouped)) + "\n\n")
 	print "no pairs: " + str(count)
+	if return_pairs:
+		if len(candidate_pairs) == count:
+			print "PAIRS WORKED"
+		return candidate_pairs
 	return grouped
 
 def collect_bioisosteres(*args):
@@ -224,8 +235,10 @@ def collect_bioisosteres(*args):
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	return final_collection
 
-def collect_bioisosteres_greedy(*args):
+def collect_bioisosteres_greedy(from_pairs=False,*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
+	if from_pairs:
+		coll = [get_bioisosteres(data_file,return_pairs=True) for data_file in args]
 	## NOTE:: this gives a list of Group objects
 	## reduce to give a one dimesional list of groups
 	collection = [coll[i][j] for i in range(len(coll)) for j in range(len(coll[i]))]
@@ -267,6 +280,8 @@ def collect_bioisosteres_greedy(*args):
 	for i in range(len(final_collection)):
 		print str(i) + "\t" + str(final_collection[i].size()) + "\t" + str(list(lig_per_group[i]))
 	directory = '../test_output/compared_results_NO_SMILES/greedy/' 
+	if from_pairs:
+		directory += 'from_pairs/'
 	try: 
 		os.makedirs(directory)
 		print "created new directory: " + directory
