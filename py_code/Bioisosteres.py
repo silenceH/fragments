@@ -233,7 +233,30 @@ def get_pair_frequency(write_stats,*args):
 			frequency_stats[val] += 1
 		else:
 			frequency_stats[val] = 1
+	
 	print frequency_stats
+	
+	home= os.environ['HOME']		## get data env
+	directory = home+'/Dropbox/test_output/pairs_with_frequency_'
+
+	frequencies = frequency_stats.keys()
+	pairs_by_frequency = []
+	for i in frequencies:
+		pairs_with_freqency_i = [val for val,key in final_dict.items() if key == i]
+		pairs_by_frequency.append(pairs_with_freqency_i)
+		print i
+		print pairs_with_freqency_i
+		
+		try: 
+			os.makedirs(directory+str(i))
+		except OSError:
+			print directory + str(i) + " already exists."	
+		for p in pairs_with_freqency_i:
+			draw = [p[0],p[1]]
+			draw_mols_to_png([draw],"/pair_"+str(pairs_with_freqency_i.index(p)),directory)
+
+	
+
 	bar = []
 	for x in range(max(frequency_stats)):
 		if (x+1) in frequency_stats:
