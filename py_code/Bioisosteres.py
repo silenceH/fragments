@@ -2,6 +2,7 @@
 
 import os
 import time
+import matplotlib.pyplot as plt
 from rdkit import Chem, DataStructs
 from rdkit.Chem import AllChem, BRICS, Draw, rdShapeHelpers, Descriptors
 from RDMols import * 
@@ -81,7 +82,7 @@ def merge_frag_groups(ref_group,merge_group):
 			add_group.append(mol)
 	return ref_group.extend(add_group)
 
-def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=False,test=False,return_pairs=False,debug=False):
+def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=False,test=False,return_pairs=False,count_pairs=False,debug=False):
 	## gets bioisosteric pairs from an sdf file
 	## data_file : string of data file without .sdf
 	## noHs : specifies whether Hs are to be removed (boolean)
@@ -97,6 +98,11 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 	grouped = []
 	pairs = []
 	count = 0
+
+	## create dictionary for counting frequency of pairs
+	if count_pairs:
+		pair_frequency = {}
+	
 	## create a list of fragment objects here
 	mols = [get_fragments(mol,brics,data_file) for mol in mols]	
 	## for a reference molecule mol in mols
@@ -117,14 +123,30 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 					else: 
 						candidate = score_pairs_TD(s,f)		## Tanimoto distance
 					if candidate and not s.are_similar(f,1.0): 
+						# For dedugging purposes print details
 						if debug:
 							print "pair: " + str(count+1)
 							print "Ref: " + str(i) + "\tfrag: " + str(ref_frag.index(s))
 							print "Query: " + str(i+query_set.index(q)) + "\tfrag: " + str(frags.index(f))
+						# code for returning a list of pairs
 						if return_pairs:
 							pair = Group(s)
 							pair.add(f)
 							candidate_pairs.append(pair)
+
+						# add pair to the dictionary if count_pairs
+						if count_pairs:
+							# look for test pair in dict pairs 
+							not_in_dict = True
+							for pair in pair_frequency:
+								if s.are_similar(pair[0],1.0) or f.are_similar(pair[0],1): 
+									if s.are_similar(pair[1],1.0) or f.are_similar(pair[1],1): 
+										not_in_dict = False
+										pair_frequency[pair] += 1
+							# add pair
+							if not_in_dict:
+								pair_frequency[(s,f)] = 1
+
 						section_group.add(f)
 						count += 1
 				if section_group.size() > 1:
@@ -182,7 +204,59 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 		if len(candidate_pairs) == count:
 			print "PAIRS WORKED"
 		return candidate_pairs
+	if count_pairs:
+		return pair_frequency
 	return grouped
+
+def get_pair_frequency(write_stats,*args):
+	""" A function that collects the frequencies of the pairs over a number of ligand overlays """
+	coll = [get_bioisosteres(data_file,count_pairs=True) for data_file in args]
+	## NOTE:: this gives a list of dictionaries
+
+	final_dict = coll.pop()
+	for merge_dict in coll:
+		for merge_pair in merge_dict:
+			not_in_dict = True
+			for final_pair in final_dict:
+				if merge_pair[0].are_similar(final_pair[0],1.0) or merge_pair[1].are_similar(final_pair[0],1): 
+					if merge_pair[0].are_similar(final_pair[1],1.0) or merge_pair[1].are_similar(final_pair[1],1): 
+						not_in_dict = False 
+						final_dict[final_pair] += merge_dict[merge_pair]
+			if not_in_dict:
+				final_dict[merge_pair] = merge_dict[merge_pair]
+
+	## create a dictionary of frequencies
+	frequency_stats = {}
+	for pair in final_dict:
+		val = final_dict[pair]
+		if val in frequency_stats:
+			frequency_stats[val] += 1
+		else:
+			frequency_stats[val] = 1
+	print frequency_stats
+	bar = []
+	for x in range(max(frequency_stats)):
+		if (x+1) in frequency_stats:
+			bar.append(frequency_stats[x+1])
+		else:
+			bar.append(0)
+	
+	print bar
+
+	if write_stats:
+		plt.bar(range(len(frequency_stats)),frequency_stats.values(),align='center')
+		plt.xticks(range(len(frequency_stats)),frequency_stats.keys())
+
+		plt.show()
+	f = open("stats.csv",'w')
+	f.write("SUMMARY STATISTICS,\n")
+	f.write("number of occurences,number of pairs,\n")
+	for i in bar:
+		f.write(str(bar.index(i) + 1)+','+str(i)+',\n')
+	f.close()
+
+
+
 
 def collect_bioisosteres(*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
@@ -235,7 +309,7 @@ def collect_bioisosteres(*args):
 	draw_mols_to_png(final_collection,'final_collection',directory)
 	return final_collection
 
-def collect_bioisosteres_greedy(from_pairs=False,*args):
+def collect_bioisosteres_greedy(from_pairs,*args):
 	coll = [get_bioisosteres(data_file,True,True,True,False,True) for data_file in args]
 	if from_pairs:
 		coll = [get_bioisosteres(data_file,return_pairs=True) for data_file in args]
