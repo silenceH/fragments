@@ -150,6 +150,7 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 						section_group.add(f)
 						count += 1
 				if section_group.size() > 1:
+					print "size of section group: " + str(section_group.size())
 					in_grouped = False
 					for x in grouped:
 						if section_group.get_mol(0) in x.group:
@@ -208,7 +209,7 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 		return pair_frequency
 	return grouped
 
-def get_pair_frequency(write_stats,*args):
+def get_pair_frequency(write_stats,title,*args):
 	""" A function that collects the frequencies of the pairs over a number of ligand overlays """
 	coll = [get_bioisosteres(data_file,count_pairs=True) for data_file in args]
 	## NOTE:: this gives a list of dictionaries
@@ -234,10 +235,8 @@ def get_pair_frequency(write_stats,*args):
 		else:
 			frequency_stats[val] = 1
 	
-	print frequency_stats
-	
 	home= os.environ['HOME']		## get data env
-	directory = home+'/Dropbox/test_output/pairs_with_frequency_'
+	directory = home+'/Dropbox/test_output/' + title + '/pairs_with_frequency_'
 
 	frequencies = frequency_stats.keys()
 	pairs_by_frequency = []
@@ -253,7 +252,7 @@ def get_pair_frequency(write_stats,*args):
 			print directory + str(i) + " already exists."	
 		for p in pairs_with_freqency_i:
 			draw = [p[0],p[1]]
-			draw_mols_to_png([draw],"/pair_"+str(pairs_with_freqency_i.index(p)),directory)
+			draw_mols_to_png([draw],"/pair_"+str(pairs_with_freqency_i.index(p)),directory+str(i))
 
 	
 
@@ -263,8 +262,10 @@ def get_pair_frequency(write_stats,*args):
 			bar.append(frequency_stats[x+1])
 		else:
 			bar.append(0)
-	
-	print bar
+	total_pairs = 0
+	for i in range(len(bar)):
+		total_pairs += (i+1)*(bar[i])
+	print "total pairs: " + str(total_pairs)
 
 	if write_stats:
 		plt.bar(range(len(frequency_stats)),frequency_stats.values(),align='center')
