@@ -57,10 +57,12 @@ def test_3():
 
 def test_4():
 	frags = get_fragments_from_files("P39900")
+	frags_2 = get_unique_fragments_from_files("P39900")
 	query = frags[10]
 	import copy
 	copy_frags = copy.deepcopy(frags)
 	new_frags = enrichment.rank_list_of_fragments(query,frags)
+	new_frags_2 = enrichment.rank_list_of_fragments(query,frags_2)
 
 	part_1 = new_frags[0].are_similar(query,1.0)
 	if not part_1:
@@ -69,8 +71,39 @@ def test_4():
 	part_2 = copy_frags != new_frags
 	if not part_2:
 		print "test 4 : list has not changed"
-	return part_1 and part_2
+
+	part_3 = new_frags_2[0].are_similar(query,1.0)
+	if not part_3:
+		print "test 4 : unique fragments not self-similar"
+
+	return part_1 and part_2 and part_3
 	
+def test_5():
+	## test to see whether unique frags works
+	frags_1 = get_unique_fragments_from_files("P39900")
+	frags_2 = get_fragments_from_files("P39900")
+
+	## see whether any have been removed
+	part_1 = len(frags_1) < len(frags_2)
+
+	if not part_1:
+		print "test 5 : lists are still the same length"
+	
+	## compare to group de-depulicating method
+	group_example = Group()
+	for i in frags_2:
+		group_example.add(i)
+	
+	group_example.remove_2D_equivalents()
+
+	part_2 = len(frags_1) == group_example.size()
+	if not part_2:
+		print "test 5 : group method and this method return different length lists"
+	
+	return part_1 and part_2
+
+
+
 ####################################################################
 ##                        MAIN                                    ##
 ####################################################################
@@ -86,3 +119,8 @@ if test_3():
 
 if test_4():
 	print "test_4 passed"
+
+if test_5():
+	print "test_5 passed"
+
+enrichment.pair_enrichment(0,"P39900","P39900","Q00511","P00918")

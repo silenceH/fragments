@@ -33,4 +33,47 @@ def rank_list_of_fragments(query,list_of_fragments):
 				list_of_fragments[i], list_of_fragments[i+1] = list_of_fragments[i+1], list_of_fragments[i]
 				changed = True
 	return list_of_fragments
-				
+
+def find_rank(fragment,list_of_fragments):
+	for i in range(len(list_of_fragments)):
+		if fragment.are_similar(list_of_fragments[i],1.0):
+			return i
+	return None
+
+def pair_enrichment(num,target,*args):
+	# give the ranks of the bioisosteric pairs 
+	
+	# first get the pairs from a 
+	target_pairs = get_bioisosteres(target,return_pairs=True)
+
+	# get all the unique fragments from the files
+	all_fragments = get_unique_fragments_from_files(*args)
+
+	if num>0:
+		# select num pairs 
+		import random
+		pairs = []
+		for n in range(num):
+			choice = random.randint(0,len(all_fragments)) - 1
+			pairs.append(choice)
+	else:
+		pairs = range(len(target_pairs))
+
+	for pair in pairs:
+		query_pair = target_pairs[pair].group
+		## rank by similarity to first fragment in the pair
+		## then find the rank of the second fragment
+		ranked_list = rank_list_of_fragments(query_pair[0],all_fragments)
+		rank_0 = find_rank(query_pair[1],ranked_list)
+		print "for pair " + str(pair)
+		print "the rank of the pair wrt first fragment: " + str(rank_0)
+
+		## rank by similarity to the second fragment in the pair
+		## then find the rank of the second fragment
+		ranked_list = rank_list_of_fragments(query_pair[1],all_fragments)
+		rank_1 = find_rank(query_pair[0],ranked_list)
+		print "the rank of the pair wrt second fragment: " + str(rank_1)
+
+	
+
+

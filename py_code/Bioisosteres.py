@@ -577,3 +577,15 @@ def get_fragments_from_files(*args):
 		for m in mols:
 			fragments.extend(get_fragments(m,True,data_file))
 	return fragments		
+
+def get_unique_fragments_from_files(*args):
+	fragments = get_fragments_from_files(*args)
+	u = []
+	for mol in fragments:
+		include = True
+		for m in u:
+			if mol.are_similar(m,1.0):
+				include = False
+		if include:
+			u.append(mol)
+	return u

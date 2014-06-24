@@ -43,8 +43,8 @@ class Group(object):
 		for mol in self.group:
 			include = True
 			for m in u:
-				#if mol.are_similar(m,1.0):
-				if mol == m:
+				if mol.are_similar(m,1.0):
+				#if mol == m:
 					include = False
 			if include:
 				u.append(mol)
