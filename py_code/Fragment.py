@@ -41,6 +41,15 @@ class Fragment(object):
 		else: 
 			return False
 
+	def tanimoto_score(self,frag2):
+		## returns tanimoto score of two fragments
+		if self.fp is None:
+			self.fp = AllChem.GetMorganFingerprint(self.frag,2)
+		if frag2.fp is None:
+			frag2.fp = AllChem.GetMorganFingerprint(frag2.frag,2)
+		return	DataStructs.TanimotoSimilarity(self.fp,frag2.fp)
+
+
 	def get_all_coords(self):
 			## return a list of coords for the 3D shape of a mol 
 		if self.coords is None:

@@ -150,7 +150,8 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 						section_group.add(f)
 						count += 1
 				if section_group.size() > 1:
-					print "size of section group: " + str(section_group.size())
+					if debug:
+						print "size of section group: " + str(section_group.size())
 					in_grouped = False
 					for x in grouped:
 						if section_group.get_mol(0) in x.group:
@@ -167,9 +168,11 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 	directory = '../test_output/'+data_file+'_candidate_bioisosteres/' 
 	try: 
 		os.makedirs(directory)
-		print "created new directory: " + directory
+		if debug:
+			print "created new directory: " + directory
 	except OSError:
-		print directory + " already exists."	
+		if debug:
+			print directory + " already exists."	
 	if not test: 
 		if return_pairs:
 			write_mols_to_file(candidate_pairs,'pair',directory)
@@ -200,10 +203,12 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 		f.write(str(i+1) + "\t" + str(grouped[i].size()) + "\t" + str(av_sim)+"\n")
 		total_sim_of_groups += av_sim
 	f.write("\naverage similarity over the group: " + str(total_sim_of_groups/len(grouped)) + "\n\n")
-	print "no pairs: " + str(count)
+	if debug:
+		print "no pairs: " + str(count)
 	if return_pairs:
-		if len(candidate_pairs) == count:
-			print "PAIRS WORKED"
+		if debug:
+			if len(candidate_pairs) == count:
+				print "PAIRS WORKED"
 		return candidate_pairs
 	if count_pairs:
 		return pair_frequency
@@ -564,3 +569,11 @@ def two_dim_similars(data_file,threshold,full_screen=False):
 			f.write(str(g)+"\n")
 		print "\n\n\n"
 
+def get_fragments_from_files(*args):
+	fragments = [] 
+	for data_file in args:
+		mols = get_mols_from_sdf_file(data_file,True)
+		## obtain 1 dimensional list of fragments
+		for m in mols:
+			fragments.extend(get_fragments(m,True,data_file))
+	return fragments		
