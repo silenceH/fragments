@@ -57,3 +57,16 @@ class Group(object):
 			row = (DataStructs.TanimotoSimilarity(self.get_mol(i).fp,self.get_mol(j).fp) for j in range(num_mols) if j > i)
 			total_sim += sum(row)
 		return 2*total_sim/(num_mols**2 - num_mols)
+
+	def get_pairs_from_group(self):
+		## return all the pairs from a group
+		pairs_1 = []
+		for i in range(self.size() - 1):
+			for j in range(i+1,self.size()):
+				# add pair to group
+				pair = [self.group[i],self.group[j]]
+				pairs_1.append(pair)
+		pairs_2 = [[y,x] for (x,y) in pairs_1]
+		pairs_1.extend(pairs_2)
+		return pairs_1
+

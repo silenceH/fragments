@@ -571,7 +571,15 @@ def two_dim_similars(data_file,threshold,full_screen=False):
 
 def get_fragments_from_files(*args):
 	fragments = [] 
-	for data_file in args:
+	files = []
+	for arg in args:
+		if type(arg) is list:
+			files.extend(arg)
+		else:
+			files.append(arg)
+
+	for data_file in files:
+		print data_file
 		mols = get_mols_from_sdf_file(data_file,True)
 		## obtain 1 dimensional list of fragments
 		for m in mols:

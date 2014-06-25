@@ -75,5 +75,25 @@ def pair_enrichment(num,target,*args):
 		print "the rank of the pair wrt second fragment: " + str(rank_1)
 
 	
+def group_enrichment(target,*args):
+	## find the enrichment for molecules in the groups of an overlay
 
+	## get all the groups
+	target_groups = get_bioisosteres(target)
 
+	## get all the fragments in the test set
+	all_fragments = get_unique_fragments_from_files(*args)
+
+	## find the enrichment for each group in the target groups
+	for grp in target_groups:
+		print "group : " + str(target_groups.index(grp))
+		pairs = grp.get_pairs_from_group()
+		for (frag_1,frag_2) in pairs: 
+			ranked_list = rank_list_of_fragments(frag_1,all_fragments)
+			rank_0 = find_rank(frag_2,ranked_list)
+			print rank_0
+			ranked_list = rank_list_of_fragments(frag_2,all_fragments)
+			rank_1 = find_rank(frag_1,ranked_list)
+			print rank_1
+
+			

@@ -102,6 +102,37 @@ def test_5():
 	
 	return part_1 and part_2
 
+def test_6():
+	## test to see whether get pairs from group is well behaved 
+
+	target_pairs = get_bioisosteres("P39900",return_pairs=True)
+	target_groups = get_bioisosteres("P39900")
+
+	## test to see whether a two member group returns two pairs
+	two_frag_group = target_pairs[0]
+
+	first_pairs = two_frag_group.get_pairs_from_group()
+
+	part_1 = len(first_pairs) == 2
+
+	if not part_1:
+		print "test 6 : group with two fragments does not return two pairs"
+
+	part_2 = first_pairs[0] != first_pairs[1]
+
+	if not part_2:
+		print "test 6 : pairs are not different"
+
+	second_group = target_groups[0]
+	second_group_size = second_group.size()
+	second_pairs = second_group.get_pairs_from_group()
+
+	part_3 = len(second_pairs) == (second_group_size**2) - second_group_size
+
+	if not part_3:
+		print "test 6 : pairs from larger group and not double the size"
+
+	return part_1 and part_2 and part_3
 
 
 ####################################################################
@@ -123,4 +154,25 @@ if test_4():
 if test_5():
 	print "test_5 passed"
 
-enrichment.pair_enrichment(0,"P39900","P39900","Q00511","P00918")
+if test_6():
+	print "test_6 passed"
+
+#enrichment.pair_enrichment(0,"P39900","P39900","Q00511","P00918")
+#enrichment.group_enrichment("P39900","P39900","Q00511","P00918")
+import os
+import fnmatch
+try:
+	data = os.environ['DATA']		## get data env
+except KeyError:
+	print "cannot find data environment variable"
+data_dir = data + '/validation_overlays/'
+files = []
+for file in os.listdir(data_dir):
+	if fnmatch.fnmatch(file, '*.sdf'):
+		files.append(file)
+
+targets = [target[:-4] for target in files]
+
+
+enrichment.group_enrichment("P39900",targets)
+
