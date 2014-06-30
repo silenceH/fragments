@@ -260,6 +260,7 @@ void getBioiosteres(std::string file_name, std::vector<std::vector <ROMOL_SPTR> 
 	std::cout<<"size of final groups: " <<  std::endl;
         for(int i = 0; i<final_group.size(); ++i)
         {
+                std::cout<<final_group[i].size()<<std::endl;
 		char* home = getenv("HOME");
 		std::string fname = std::string(home) + "/fragments/test_output/cpp/group_" + std::to_string(i)+".sdf";
                 SDWriter *writer = new SDWriter(fname);
