@@ -80,20 +80,63 @@ def group_enrichment(target,*args):
 
 	## get all the groups
 	target_groups = get_bioisosteres(target)
+	num_groups = len(target_groups) 	# number of groups
 
 	## get all the fragments in the test set
 	all_fragments = get_unique_fragments_from_files(*args)
+	
+	print "total number of fragments: " + str(len(all_fragments))
 
+	## define statistics
+	av_ranks = [] # average ranks
+	pair_ranks = [] # pairwise ranks
+	grp_size = [g.size() for g in target_groups] # group sizes
+	grp_num_pairs = [2*x for x in grp_size]
+	
 	## find the enrichment for each group in the target groups
 	for grp in target_groups:
-		print "group : " + str(target_groups.index(grp))
 		pairs = grp.get_pairs_from_group()
+		total_rank = 0
+		grp_rank = [] 	# all ranks of the pairs
 		for (frag_1,frag_2) in pairs: 
 			ranked_list = rank_list_of_fragments(frag_1,all_fragments)
 			rank_0 = find_rank(frag_2,ranked_list)
-			print rank_0
+			grp_rank.append(rank_0)
+			total_rank += rank_0
 			ranked_list = rank_list_of_fragments(frag_2,all_fragments)
 			rank_1 = find_rank(frag_1,ranked_list)
-			print rank_1
+			grp_rank.append(rank_1)
+			total_rank += rank_1
+		av_rank = total_rank / (2*len(pairs))
+		av_ranks.append(av_rank)
+		pair_ranks.append(grp_rank)
+	
+	## test to see whether the lists are the same size as the number of groups
+	assert num_groups == len(av_ranks)
+	
+	## write stats to file
+	directory = '../test_output/enrichment/'
+	try: 
+		os.makedirs(directory)
+	except OSError:
+		print "enrichment dir already exist"
+	
+	f = open(directory+"group_stats.csv",'w')
 
-			
+	# print summary statistics
+	f.write("group ranks by pairs\n")
+	for i in xrange(max(grp_num_pairs)):
+		for j in xrange(num_groups):
+			if i >= grp_num_pairs[j]:
+				f.write('\t')
+			else:
+				f.write(str(pair_ranks[j][i])+'\t')
+		f.write('\n')
+
+	for i in xrange(num_groups):
+		f.write(str(av_ranks[i]) + "\t")
+	f.write("\n\n")
+	f.write("average group rating\t" + str(sum(av_ranks)/num_groups)+'\n')
+	f.close()
+	print "statistics written to " + directory
+	print grp_size

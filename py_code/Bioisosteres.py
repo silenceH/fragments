@@ -579,7 +579,6 @@ def get_fragments_from_files(*args):
 			files.append(arg)
 
 	for data_file in files:
-		print data_file
 		mols = get_mols_from_sdf_file(data_file,True)
 		## obtain 1 dimensional list of fragments
 		for m in mols:
