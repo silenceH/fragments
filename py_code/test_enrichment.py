@@ -174,5 +174,25 @@ for file in os.listdir(data_dir):
 targets = [target[:-4] for target in files]
 
 
-enrichment.group_enrichment("P39900",targets)
+#enrichment.group_enrichment("P39900",targets)
+
+frags,scores =  enrichment.rank_targets(targets[0])
+assert len(frags) == len(scores)
+print "all frags ranked from one target" + str(len(scores))
+
+frags,scores =  enrichment.rank_targets(targets[:2])
+assert len(frags) == len(scores)
+print "all frags ranked from two targets" + str(len(scores))
+
+frags,scores =  enrichment.rank_targets(targets[:3])
+assert len(frags) == len(scores)
+print "all frags ranked from three targets" + str(len(scores))
+
+frags,scores =  enrichment.rank_targets(targets[:5])
+assert len(frags) == len(scores)
+print "all frags ranked from two targets" + str(len(scores))
+
+frags,scores =  enrichment.rank_targets(targets[:len(targets)/2])
+assert len(frags) == len(scores)
+print "all frags ranked from half targets" + str(len(scores))
 

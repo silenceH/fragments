@@ -154,7 +154,7 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 						print "size of section group: " + str(section_group.size())
 					in_grouped = False
 					for x in grouped:
-						if section_group.get_mol(0) in x.group:
+						if section_group.get_mol(0) in x.group or section_group.get_mol(1) in x.group:
 							in_grouped = True
 							x.merge(section_group) 
 					if not in_grouped:
@@ -165,7 +165,7 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 	if overlap:  data_file += "_overlap"
 	if kennewell: data_file += "_KN"
 
-	directory = '../test_output/'+data_file+'_candidate_bioisosteres/' 
+	directory = '../test_output/'+data_file+'_candidate_bioisosteres_grouping_test/' 
 	try: 
 		os.makedirs(directory)
 		if debug:

@@ -21,7 +21,7 @@ def score_similarity(query,list_of_fragments):
 	similarity_scores = [x.tanimoto_score(query) for x in list_of_fragments]
 	return similarity_scores
 
-def rank_list_of_fragments(query,list_of_fragments):
+def rank_list_of_fragments(query,list_of_fragments,return_scores = False):
 	## rank a list of fragments by the similarity to a query
 	scores = score_similarity(query,list_of_fragments)
 	changed = True
@@ -32,7 +32,37 @@ def rank_list_of_fragments(query,list_of_fragments):
 				scores[i], scores[i+1] = scores[i+1], scores[i]
 				list_of_fragments[i], list_of_fragments[i+1] = list_of_fragments[i+1], list_of_fragments[i]
 				changed = True
+	if return_scores:
+		return list_of_fragments,scores
 	return list_of_fragments
+
+def ranked_list_of_all_fragments(list_of_fragments):
+	## define final list of fragments and scores
+	final_list = []
+	final_scores = []
+
+	# iterate for fragments to get a ranked list of pairs for each fragment
+	for frag_1 in list_of_fragments:
+		query_list = [x for x in list_of_fragments if x is not frag_1]
+		ranked_list, scores = rank_list_of_fragments(frag_1,query_list,True)
+		if len(final_list) == 0:
+			final_list = [(frag_1,frag_2) for frag_2 in ranked_list]
+			final_scores = scores
+		else: 
+			while(len(scores)>0):
+				test_score = scores.pop(0)
+				test_frag = ranked_list.pop(0)
+				for i in range(len(final_scores)):
+					if test_score >= final_scores[i]:
+						final_list.insert(i,(frag_1,test_frag))
+						final_scores.insert(i,test_score)
+						break
+	return final_list,final_scores
+
+	
+def rank_targets(*args):
+	all_fragments = get_unique_fragments_from_files(*args)
+	return ranked_list_of_all_fragments(all_fragments)
 
 def find_rank(fragment,list_of_fragments):
 	for i in range(len(list_of_fragments)):
@@ -85,7 +115,8 @@ def group_enrichment(target,*args):
 	## get all the fragments in the test set
 	all_fragments = get_unique_fragments_from_files(*args)
 	
-	print "total number of fragments: " + str(len(all_fragments))
+	total_fragments = len(all_fragments)
+	print "total number of fragments: " + str(total_fragments)
 
 	## define statistics
 	av_ranks = [] # average ranks
@@ -93,7 +124,7 @@ def group_enrichment(target,*args):
 	grp_size = [g.size() for g in target_groups] # group sizes
 	grp_num_pairs = [2*x for x in grp_size]
 	
-	## find the enrichment for each group in the target groups
+	## find the 2D rank for each group in the target groups
 	for grp in target_groups:
 		pairs = grp.get_pairs_from_group()
 		total_rank = 0
@@ -136,7 +167,8 @@ def group_enrichment(target,*args):
 	for i in xrange(num_groups):
 		f.write(str(av_ranks[i]) + "\t")
 	f.write("\n\n")
+	f.write(str(total_fragments)+ '\n')
 	f.write("average group rating\t" + str(sum(av_ranks)/num_groups)+'\n')
 	f.close()
 	print "statistics written to " + directory
-	print grp_size
+	return
