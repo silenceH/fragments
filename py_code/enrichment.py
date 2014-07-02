@@ -36,6 +36,48 @@ def rank_list_of_fragments(query,list_of_fragments,return_scores = False):
 		return list_of_fragments,scores
 	return list_of_fragments
 
+def mergeSorted(scores_1,fragments_1, scores_2, fragments_2):
+	final_score= []
+	final_frag= []
+
+	# check to see whether either scores is empty
+	if len(scores_1) == 0:
+		return scores_2,fragments_2
+	if len(scores_2) == 0:
+		return scores_1,fragments_1
+
+	score_1 = scores_1.pop(0)	# gets the biggest element
+	score_2 = scores_2.pop(0)
+
+	frag_pair_1 = fragments_1.pop(0)
+	frag_pair_2 = fragments_2.pop(0)
+	
+	## note:: this needs fixing for scoress of one element 
+	while(len(scores_1)!=0 and len(scores_2)!=0):
+		if score_1>=score_2:
+			final_score.append(score_1)
+			final_frag.append(frag_1)
+			score_1 = scores_1.pop(0)	
+			frag_pair_1 = fragments_1.pop(0)
+
+		if score_2>=score_1:
+			final_score.append(score_2)
+			final_frag.append(frag_2)
+			score_2 = scores_2.pop(0)	
+			frag_pair_2 = fragments_2.pop(0)
+
+		if len(scores_1)==0:
+			final_score.extend(score_2)
+			final_frag.extend(frag_2)
+
+		if len(scores_2)==0:
+			final_score.extend(score_1)
+			final_frag.extend(frag_1)
+	
+	return final_frag, final_score
+
+
+
 def ranked_list_of_all_fragments(list_of_fragments):
 	## define final list of fragments and scores
 	final_list = []
