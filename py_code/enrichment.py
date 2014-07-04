@@ -40,6 +40,9 @@ def mergeSorted(scores_1,fragments_1, scores_2, fragments_2):
 	final_score= []
 	final_frag= []
 
+	assert len(scores_2) == len(fragments_2)
+	assert len(scores_1) == len(fragments_1)
+
 	# check to see whether either scores is empty
 	if len(scores_1) == 0:
 		return scores_2,fragments_2
@@ -52,29 +55,88 @@ def mergeSorted(scores_1,fragments_1, scores_2, fragments_2):
 	frag_pair_1 = fragments_1.pop(0)
 	frag_pair_2 = fragments_2.pop(0)
 	
+	assert len(scores_2) == len(fragments_2)
+	assert len(scores_1) == len(fragments_1)
 	## note:: this needs fixing for scoress of one element 
-	while(len(scores_1)!=0 and len(scores_2)!=0):
+	while len(scores_1)!=0 and len(scores_2)!=0 :
 		if score_1>=score_2:
 			final_score.append(score_1)
-			final_frag.append(frag_1)
+			final_frag.append(frag_pair_1)
 			score_1 = scores_1.pop(0)	
 			frag_pair_1 = fragments_1.pop(0)
 
-		if score_2>=score_1:
+		else:
 			final_score.append(score_2)
-			final_frag.append(frag_2)
+			final_frag.append(frag_pair_2)
 			score_2 = scores_2.pop(0)	
 			frag_pair_2 = fragments_2.pop(0)
 
-		if len(scores_1)==0:
-			final_score.extend(score_2)
-			final_frag.extend(frag_2)
+	if len(scores_1)==0 or len(scores_2)==0:
 
-		if len(scores_2)==0:
-			final_score.extend(score_1)
-			final_frag.extend(frag_1)
-	
+		if len(scores_1) == 0:
+			empty_scores = scores_1
+			empty_pairs = fragments_1
+			last_score = score_1
+			last_pair = frag_pair_1
+
+			non_empty_scores = scores_2
+			non_empty_pairs = fragments_2
+			non_last_score = score_2
+			non_last_pair = frag_pair_2
+
+		if len(scores_2) == 0:
+			empty_scores = scores_2
+			empty_pairs = fragments_2
+			last_score = score_2
+			last_pair = frag_pair_2
+
+			non_empty_scores = scores_1
+			non_empty_pairs = fragments_1
+			non_last_score = score_1
+			non_last_pair = frag_pair_1
+		
+		finished = False
+
+		while not finished:
+			if last_score >= non_last_score:
+				final_score.extend([last_score,non_last_score])
+				final_frag.extend([last_pair,non_last_pair])
+				final_score.extend(non_empty_scores)
+				final_frag.extend(non_empty_pairs)
+				finished = True
+
+			else: 
+				final_score.append(non_last_score)
+				final_frag.append(non_last_pair)
+				non_last_score = non_empty_scores.pop(0)	
+				non_last_pair = non_empty_pairs.pop(0)
+
+			if len(non_empty_scores) == 0:
+				if last_score >= non_last_score:
+					final_score.extend([last_score,non_last_score])
+					final_frag.extend([last_pair,non_last_pair])
+					finished = True
+				else:
+					final_score.extend([non_last_score,last_score])
+					final_frag.extend([non_last_pair,last_pair])
+					finished = True
+
 	return final_frag, final_score
+
+def rank_all_frags(list_of_fragments):
+	final_list = []
+	final_scores = []
+
+	for frag_1 in list_of_fragments:
+		query_list = [x for x in list_of_fragments if x is not frag_1]
+		ranked_list, scores = rank_list_of_fragments(frag_1,query_list,True)
+		ranked_list_pairs = [(frag_1,x) for x in ranked_list]
+		if len(final_list) == 0:
+			final_list = ranked_list_pairs
+			final_scores = scores
+		else:
+			final_list,final_scores = mergeSorted(final_scores,final_list,scores,ranked_list_pairs)
+	return final_list,final_scores
 
 
 
@@ -105,6 +167,10 @@ def ranked_list_of_all_fragments(list_of_fragments):
 def rank_targets(*args):
 	all_fragments = get_unique_fragments_from_files(*args)
 	return ranked_list_of_all_fragments(all_fragments)
+
+def rank_targets_test(*args):
+	all_fragments = get_unique_fragments_from_files(*args)
+	return rank_all_frags(all_fragments)
 
 def find_rank(fragment,list_of_fragments):
 	for i in range(len(list_of_fragments)):

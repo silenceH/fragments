@@ -1,5 +1,6 @@
 import enrichment 
 from Bioisosteres import *
+import time
 
 ## test to see whether the list finds all pairs that have the query 
 
@@ -175,24 +176,54 @@ targets = [target[:-4] for target in files]
 
 
 #enrichment.group_enrichment("P39900",targets)
+t0 = time.time()
 
 frags,scores =  enrichment.rank_targets(targets[0])
 assert len(frags) == len(scores)
-print "all frags ranked from one target" + str(len(scores))
+print "all frags ranked from one target " + str(len(scores))
 
 frags,scores =  enrichment.rank_targets(targets[:2])
 assert len(frags) == len(scores)
-print "all frags ranked from two targets" + str(len(scores))
+print "all frags ranked from two targets " + str(len(scores))
 
 frags,scores =  enrichment.rank_targets(targets[:3])
 assert len(frags) == len(scores)
-print "all frags ranked from three targets" + str(len(scores))
+print "all frags ranked from three targets " + str(len(scores))
 
 frags,scores =  enrichment.rank_targets(targets[:5])
 assert len(frags) == len(scores)
-print "all frags ranked from two targets" + str(len(scores))
+print "all frags ranked from two targets " + str(len(scores))
+t1= time.time()
 
-frags,scores =  enrichment.rank_targets(targets[:len(targets)/2])
+print "old way took " + str(t1-t0)
+#frags,scores =  enrichment.rank_targets(targets[:len(targets)/2])
+#assert len(frags) == len(scores)
+#print "all frags ranked from half targets" + str(len(scores))
+
+t3 = time.time()
+frags,scores =  enrichment.rank_targets_test(targets[0])
+assert len(frags) == len(scores)
+print "all frags ranked from one target " + str(len(scores))
+
+frags,scores =  enrichment.rank_targets_test(targets[:2])
+assert len(frags) == len(scores)
+print "all frags ranked from two targets " + str(len(scores))
+
+frags,scores =  enrichment.rank_targets_test(targets[:3])
+assert len(frags) == len(scores)
+print "all frags ranked from three targets "  + str(len(scores))
+
+frags,scores =  enrichment.rank_targets_test(targets[:5])
+assert len(frags) == len(scores)
+print "all frags ranked from two targets " + str(len(scores))
+t4=time.time()
+
+print "new method took " + str(t4-t3)
+
+print "improvement = " + str((t4-t3)/(t1-t0)*100)
+
+print "now testing with half database. Last time it took 5 hours" 
+
+frags,scores =  enrichment.rank_targets_test(targets[:len(targets)/2])
 assert len(frags) == len(scores)
 print "all frags ranked from half targets" + str(len(scores))
-
