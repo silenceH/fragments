@@ -3,19 +3,18 @@ Tanimoto cut off for similarity is 1.
 Hydrogen's removed.
 Kennewell scoring
 Number of fragments: 43
-Number of identified pairs : 1063
-Number of overlaid sections: 10
+Number of identified pairs : 32
+Number of overlaid sections: 9
 group 	frags 	av similarity
-1	2	0.0833333333333
-2	6	0.64142264087
-3	4	0.380726070326
-4	2	0.178571428571
-5	2	0.0428571428571
-6	2	0.12037037037
-7	2	0.0833333333333
-8	2	0.0454545454545
-9	2	0.0833333333333
-10	2	0.0333333333333
+1	6	0.256569056348
+2	2	0.166666666667
+3	4	0.253817380217
+4	2	0.357142857143
+5	2	0.166666666667
+6	2	0.0857142857143
+7	2	0.240740740741
+8	2	0.166666666667
+9	2	0.0909090909091
 
-average similarity over the group: 0.169273553178
+average similarity over the group: 0.198321490119
 

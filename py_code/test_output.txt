@@ -1,0 +1,66 @@
+found data environment: /usr/users/people/matts/data/
+num ref frags: 7
+num query frags: 4
+i am reference fragment: 0
+	i am query fragment: 0
+	average score: 0.0933807509244
+	i am query fragment: 1
+	average score: 0.416001577186
+	i am query fragment: 2
+	average score: 0.24485286275
+	i am query fragment: 3
+	average score: 0.143282710292
+i am reference fragment: 1
+	i am query fragment: 0
+	average score: 3.07174567676e-21
+	i am query fragment: 1
+	average score: 6.64799867893e-08
+	i am query fragment: 2
+	average score: 7.04852963427e-08
+	i am query fragment: 3
+	average score: 0.000808774740246
+i am reference fragment: 2
+	i am query fragment: 0
+	average score: 6.2757445812e-09
+	i am query fragment: 1
+	average score: 0.106287621019
+	i am query fragment: 2
+	average score: 0.194254373844
+	i am query fragment: 3
+	average score: 0.156570029889
+i am reference fragment: 3
+	i am query fragment: 0
+	average score: 1.39707261805e-15
+	i am query fragment: 1
+	average score: 0.000118028924452
+	i am query fragment: 2
+	average score: 0.00023643940417
+	i am query fragment: 3
+	average score: 0.000141766015875
+i am reference fragment: 4
+	i am query fragment: 0
+	average score: 1.12106032501e-19
+	i am query fragment: 1
+	average score: 3.06934984814e-05
+	i am query fragment: 2
+	average score: 0.000832338531329
+	i am query fragment: 3
+	average score: 0.161349502106
+i am reference fragment: 5
+	i am query fragment: 0
+	average score: 4.43039674273e-07
+	i am query fragment: 1
+	average score: 0.298066399347
+	i am query fragment: 2
+	average score: 0.623148160739
+	i am query fragment: 3
+	average score: 0.298007564683
+i am reference fragment: 6
+	i am query fragment: 0
+	average score: 4.72010815269e-13
+	i am query fragment: 1
+	average score: 6.34209104156e-05
+	i am query fragment: 2
+	average score: 0.00206960755279
+	i am query fragment: 3
+	average score: 0.0167999839388

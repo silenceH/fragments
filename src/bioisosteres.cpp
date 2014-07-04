@@ -46,7 +46,8 @@ void ReadMols(std::string fname, std::vector<ROMOL_SPTR> &mols)
 	
 
 	std::string fpath = std::string(data) + "validation_overlays/" +fname + ".sdf";
-	SDMolSupplier suppl(fpath,true);	// sanitize mols and keep H atoms
+	//SDMolSupplier suppl(fpath,true,false);	// sanitize mols and keep H atoms
+	SDMolSupplier suppl(fpath);	// sanitize mols and keep H atoms false
 	while(!suppl.atEnd())
 	{
 		ROMol *nmol = suppl.next();
@@ -87,17 +88,16 @@ void BuildFps(const std::vector<ROMOL_SPTR> &mols, std::vector<SIV_SPTR> &finger
 	}
 }
 
-int main()
+void getBioiosteres(std::string file_name, std::vector<std::vector <ROMOL_SPTR> > &final_group, bool debug=false,bool debug_out=false)
 {
-	std::string file_name = "P39900";
 	std::vector<ROMOL_SPTR> mols;
 	std::vector<MOL_FRAGS> frags;
 	std::vector <SIV_SPTR> mol_fps;
 	std::vector<std::vector <SIV_SPTR> > frag_fps;
-	std::vector<std::vector <ROMOL_SPTR> > total_sections;
 
 	// get molecules
 	std::cout<<"Getting mols... " << std::endl;
+	std::cout<<"file:  " << file_name << std::endl;
 	ReadMols(file_name,mols);
 
 	// fragment mols to obtain vectors of fragmented mols
@@ -111,28 +111,29 @@ int main()
 		frag_fps.push_back(f_fps);
 	}
 
-	// print frags and fingerprints to ensure they are the same indices for debugging
-	/*std::cout<<"print frags and fingerprints to ensure they are the same indices" << std::endl;	
-	for(unsigned int i = 0; i < frags.size(); ++i)
-	{
-		std::cout<<"no frags: " << frags[i].size() << "\tno. fps: " << frag_fps[i].size() << std::endl;
-	}
-	*/
 	int pair_count = 0;
 
 	for(unsigned int ref = 0; ref < frags.size()-1; ++ref)
 	{
 		MOL_FRAGS ref_mol = frags[ref];
+		if (debug)
+			std::cout << "ref ligand: " << ref << std::endl;
 
-		for(unsigned int query = ref+1; query < frags.size(); ++query)
+		for(unsigned int query = ref + 1; query < frags.size(); ++query)
 		{
 			MOL_FRAGS query_mol = frags[query];
+			if (debug)
+				std::cout << "query ligand: " << query << std::endl;
+
 			// for each fragment in a reference molecule
 			// produce the section score
 			// get vector of coordinates
 
 			for(unsigned int r_fr = 0; r_fr < ref_mol.size(); ++r_fr)
 			{
+				if (debug)
+					std::cout << "i am reference fragment: " << r_fr << std::endl;
+
 				ROMOL_SPTR ref_frag = ref_mol[r_fr];
 
 				// create a vector of group pairs
@@ -143,56 +144,99 @@ int main()
 				Conformer ref_conf = ref_frag->getConformer();
 				auto ref_pos = ref_conf.getPositions();
 
-				
 				for(unsigned int q_fr = 0; q_fr < query_mol.size(); ++q_fr)
 					{
-						// get the conformer of the ref_frag
-						ROMOL_SPTR q_frag = query_mol[q_fr];
-						Conformer q_conf = q_frag->getConformer();
-						auto q_pos = q_conf.getPositions();
+					if (debug)
+						std::cout << "\ti am query fragment: " << q_fr << std::endl;
 
-						// calculate distance
-						double section_dist = 0;
-						for(const auto& r_atom : ref_pos)
+					// get the conformer of the ref_frag
+					ROMOL_SPTR q_frag = query_mol[q_fr];
+					Conformer q_conf = q_frag->getConformer();
+					auto q_pos = q_conf.getPositions();
+
+					// calculate distance
+					double section_score = 0;
+					for(const auto& r_atom : ref_pos)
+					{
+						double atom_score = 0;
+						for(const auto& q_atom : q_pos)
 						{
-							for(const auto& q_atom : q_pos)
-							{
-								double x = r_atom.x - q_atom.x;
-								double y = r_atom.y - q_atom.y;
-								double z = r_atom.z - q_atom.z;
-								double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
-								// calculate gaussian overlap 
-								section_dist += exp(-pow(dist,2));
-							}
+							double x = r_atom.x - q_atom.x;
+							double y = r_atom.y - q_atom.y;
+							double z = r_atom.z - q_atom.z;
+							double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
+							// calculate gaussian overlap 
+							atom_score += exp(-pow(dist,2));
 						}
-						// calculate average overlap 
-						double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
-						double section_score = section_dist * (2/total_atoms);
-						
-						// Calculate Tanimoto Similarity
-						double sim = TanimotoSimilarity(*frag_fps[ref][r_fr],*frag_fps[query][q_fr]);
-						if (section_score > 0.7 && sim != 1)
-						{
-							// debugging print out
-							//std::cout << "kenn: " << section_score << "\tsim: " << sim << std::endl;
-							section_group.push_back(q_frag);
-							pair_count++;
-						}
-					
+						section_score += atom_score;
 					}
-			
+
+					// calculate average overlap 
+					double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
+					double av_score = section_score * (2/total_atoms);
+
+					if (debug)
+						std::cout << "\taverage score: " << std::setprecision(16) << av_score<<std::endl;
+					
+					// Calculate Tanimoto Similarity
+					double sim = TanimotoSimilarity(*frag_fps[ref][r_fr],*frag_fps[query][q_fr]);
+
+					// add to section group if not identical and score passes the threshold
+					if (av_score > 0.7 && sim != 1)
+					{
+						section_group.push_back(q_frag);
+						pair_count++;
+						if(debug_out){
+							std::cout<<"pair: " << pair_count << std::endl;
+							std::cout<<"Ref: " << ref << "\tfrag: "<<r_fr<<std::endl;
+							std::cout<<"Query: " << query << "\tfrag: "<<q_fr<<std::endl;
+						}
+					}
+					
+				}
 					
 				if(section_group.size() > 1)
 				{
 					//std::cout << "number of pairs in section: " << section_group.size() << std::endl;
-					total_sections.push_back(section_group);
-					/*
-					BOOST_FOREACH(ROMOL_SPTR mol, section_group)
+
+					// merge groups that have molecules in common. 
+
+					bool in_final_group = false;
+					for(auto& final_group_section : final_group)
 					{
-						std::cout << "num atoms in mol: " << (*mol).getNumAtoms() << std::endl;
+						bool in_group = false;
+						BOOST_FOREACH(ROMOL_SPTR p_mol, final_group_section)
+						{
+							if(section_group[0] == p_mol)
+								in_group = true;
+						}
+
+                                                // if in group set in_final_group to true and merge groups
+						if(in_group)
+						{
+							in_final_group = true;
+							for(int i=1; i<section_group.size(); ++i)
+                                                        {
+                                                                bool to_add = true;
+                                                                BOOST_FOREACH(ROMOL_SPTR p_mol, final_group_section)
+                                                                {
+                                                                        if (section_group[i] == p_mol) {
+                                                                                to_add=false;
+                                                                                break;
+                                                                        }
+                                                                }
+                                                                if (to_add)
+                                                                        final_group_section.push_back(section_group[i]);
+                                                        }
+						}
+
 					}
-					*/
-					
+
+					if(!in_final_group)
+						final_group.push_back(section_group);
+								
+
+
 					char* home = getenv("HOME");
 					std::string fname = std::string(home) + "/fragments/test_output/cpp/pair_" + std::to_string(pair_count)+".sdf";
 					SDWriter *writer = new SDWriter(fname);
@@ -212,8 +256,50 @@ int main()
 
 
 	std::cout<<"pair count: " << pair_count << std::endl;
-	std::cout<<"group count: " << total_sections.size() << std::endl;
-		
+	std::cout<<"final group count: " << final_group.size() << std::endl;
+	std::cout<<"size of final groups: " <<  std::endl;
+        for(int i = 0; i<final_group.size(); ++i)
+        {
+                std::cout<<final_group[i].size()<<std::endl;
+		char* home = getenv("HOME");
+		std::string fname = std::string(home) + "/fragments/test_output/cpp/group_" + std::to_string(i)+".sdf";
+                SDWriter *writer = new SDWriter(fname);
+		for(auto const& match : final_group[i])
+		{
+			writer->write(*match);
+		}
+		writer->flush();
+		writer->close();
+		delete writer;
+	}
+	std::cout<<"\n\n";
 
-	return 0;
+}
+
+int main()
+{
+	std::string file_name_1 = "P39900";
+	std::string file_name_2 = "P56817";
+	std::string file_name_3 = "P35557";
+	std::string file_name_4 = "Q92731";
+	std::string file_name_5 = "P25440";
+	
+	std::vector<std::vector <ROMOL_SPTR> > final_group1;
+	std::vector<std::vector <ROMOL_SPTR> > final_group2;
+	std::vector<std::vector <ROMOL_SPTR> > final_group3;
+	std::vector<std::vector <ROMOL_SPTR> > final_group4;
+	std::vector<std::vector <ROMOL_SPTR> > final_group5;
+
+	getBioiosteres(file_name_1,final_group1);
+	//getBioiosteres(file_name_2,final_group2);
+	//getBioiosteres(file_name_3,final_group3);
+	//getBioiosteres(file_name_4,final_group4);
+        //getBioiosteres(file_name_5,final_group5);
+
+	std::vector<ROMOL_SPTR> mols;
+        ReadMols(file_name_1,mols);
+	BOOST_FOREACH(ROMOL_SPTR p_mol, mols)
+	{
+                std::cout<<(*p_mol).getNumAtoms()<<std::endl;
+        } 
 }

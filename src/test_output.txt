@@ -1,0 +1,72 @@
+Getting mols... 
+file:  P39900
+num ref frags: 7
+num query frags: 4
+i am reference fragment: 0
+	i am query fragment: 0
+	average score: 0.09338075092444725
+	i am query fragment: 1
+	average score: 0.4160015771856476
+	i am query fragment: 2
+	average score: 0.2448528627501612
+	i am query fragment: 3
+	average score: 0.1432827102924707
+i am reference fragment: 1
+	i am query fragment: 0
+	average score: 3.071745676755363e-21
+	i am query fragment: 1
+	average score: 6.64799867892765e-08
+	i am query fragment: 2
+	average score: 7.048529634269874e-08
+	i am query fragment: 3
+	average score: 0.0008087747402463831
+i am reference fragment: 2
+	i am query fragment: 0
+	average score: 6.275744581203658e-09
+	i am query fragment: 1
+	average score: 0.1062876210190203
+	i am query fragment: 2
+	average score: 0.1942543738440415
+	i am query fragment: 3
+	average score: 0.1565700298891369
+i am reference fragment: 3
+	i am query fragment: 0
+	average score: 1.39707261804804e-15
+	i am query fragment: 1
+	average score: 0.0001180289244517777
+	i am query fragment: 2
+	average score: 0.0002364394041701504
+	i am query fragment: 3
+	average score: 0.0001417660158745469
+i am reference fragment: 4
+	i am query fragment: 0
+	average score: 1.12106032501452e-19
+	i am query fragment: 1
+	average score: 3.069349848139306e-05
+	i am query fragment: 2
+	average score: 0.0008323385313294015
+	i am query fragment: 3
+	average score: 0.1613495021057264
+i am reference fragment: 5
+	i am query fragment: 0
+	average score: 4.430396742734096e-07
+	i am query fragment: 1
+	average score: 0.2980663993473992
+	i am query fragment: 2
+	average score: 0.6231481607391953
+	i am query fragment: 3
+	average score: 0.2980075646826887
+i am reference fragment: 6
+	i am query fragment: 0
+	average score: 4.720108152687922e-13
+	i am query fragment: 1
+	average score: 6.342091041564542e-05
+	i am query fragment: 2
+	average score: 0.00206960755278975
+	i am query fragment: 3
+	average score: 0.01679998393878572
+pair count: 0
+group count: 0
+final group count: 0
+
+

@@ -1,128 +1,166 @@
-/*
- * KENNEWELL_DEV_11.CPP
- * Implementation of Kennewell in c++ using the C++11 standard
- * Matthew Seddon
- * January 2014
- * compile with:
- * g++ -std=c++11 -o frags_11 frags_11.cpp -I$RDBASE/Code -I$RDBASE/EXtern 
- * -L$RDBASE/lib -lFileParsers -lGraphMol -lRDGeneral -lChemTransforms
- */
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
+// standard includes
 #include <stdlib.h> // exit getenv
 
+// rdkit includes
+#include <RDGeneral/Invariant.h>
+#include <DataStructs/BitVects.h>
+#include <DataStructs/BitOps.h>
+#include <GraphMol/RDKitBase.h>
 #include <GraphMol/ROMol.h>
 #include <GraphMol/Conformer.h>
-#include <GraphMol/RDKitBase.h>
 #include <GraphMol/FileParsers/MolSupplier.h> // for obtaining the molecules from sdf
 #include <GraphMol/FileParsers/MolWriters.h> // for writing the molecules to sdf
 #include <GraphMol/FileParsers/FileParsers.h>
 #include <GraphMol/ChemTransforms/MolFragmenter.h>
+#include <GraphMol/ChemTransforms/MolFragmenter.h>
 #include <GraphMol/RDKitQueries.h>
+<<<<<<< HEAD
 #include <GraphMol/Substruct/SubstructMatch.h>
 #include <GraphMol/Substruct/SubstructUtils.h>
 #include <GraphMol/Fingerprints/MorganFingerprints.h>
 #include <DataStructs/ExplicitBitVect.h>
 
+=======
+#include <DataStructs/SparseIntVect.h>
+#include <GraphMol/Fingerprints/MorganFingerprints.h>
+>>>>>>> devel
 
 
 using namespace RDKit;
-using namespace std;
 
-typedef boost::shared_ptr<ROMol> sp_fragments;
-typedef boost::shared_ptr<SparseIntVect> SIV_SPTR; 
+typedef boost::shared_ptr<SparseIntVect <boost::uint32_t> > SIV_SPTR;
+typedef std::vector<ROMOL_SPTR> MOL_FRAGS;
+// typedef boost::shared_ptr<ROMol> ROMOL_SPTR; // defined in chemtransforms
 
+// TODO :: CREATE A STRUCT FOR THE FRAGMENTS THAT WOULD BE ABLE TO HOLD A FRAG A FP AND A GAUSSIAN
 
-
-class Fragment
-{
-	// insert code
-	public:
-		sp_fragments frag;
-		string smiles;
-		//ExplicitBitVect *fp;
-
+struct Frag {
+	ROMOL_SPTR frag;
+	SIV_SPTR fp;
 };
 
-/*
- * Method to fragment a mol into BRICS fragments
- */
-vector<sp_fragments> fragment_mol(ROMol& mol)
+void ReadMols(std::string fname, std::vector<ROMOL_SPTR> &mols)
 {
-	// take a dereferenced mol pointer and fragment
-	ROMol* frag = MolFragmenter::fragmentOnBRICSBonds(mol);
-	vector<sp_fragments> num_frags = MolOps::getMolFrags(*frag);
-	return num_frags;
-}
+// --------------------------------------------------------------
+// 	READ MOLECULES
+// --------------------------------------------------------------
 
-
-/* 
- * Method that takes a file name and returns a vector of ROMol pointers
- */
-vector<ROMol*> getMols(string file_name)
-{
-	char* data = getenv("DATA");
+	char *data = getenv("DATA");
 	if (data==NULL)
 	{
-		cerr << "cannot find data environment" << endl;
+		std::cerr << "cannot find data environment" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	
 
-	string fname = string(data) + string("validation_overlays/") +file_name + string(".sdf");
-	SDMolSupplier suppl(fname,true);	// sanitize mols and keep H atoms
-	vector<ROMol*> mols;
+	std::string fpath = std::string(data) + "validation_overlays/" +fname + ".sdf";
+	SDMolSupplier suppl(fpath,true);	// sanitize mols and keep H atoms
 	while(!suppl.atEnd())
 	{
 		ROMol *nmol = suppl.next();
-		if(nmol!=0) 			// NULL is 0 in c++
-			mols.push_back(nmol);
+		if(!nmol) continue; 			// NULL is 0 in c++
+		ROMOL_SPTR p_nmol(nmol);
+		mols.push_back(p_nmol);
 	}
-	return mols;
+}
+
+
+void FragmentMols(const std::vector<ROMOL_SPTR> &mols, std::vector<MOL_FRAGS> &fragments)
+{
+// --------------------------------------------------------------
+// 	CONSTRUCT FRAGMENTS
+// --------------------------------------------------------------
+
+	BOOST_FOREACH(ROMOL_SPTR p_mol, mols)
+	{
+		ROMol* frag = MolFragmenter::fragmentOnBRICSBonds(*p_mol);
+		MOL_FRAGS mol = MolOps::getMolFrags(*frag);
+		fragments.push_back(mol);
+	}
+}
+
+
+void BuildFps(const std::vector<ROMOL_SPTR> &mols, std::vector<SIV_SPTR> &fingerprints)
+{
+// --------------------------------------------------------------
+// 	CONSTRUCT FINGERPRINTS 
+// --------------------------------------------------------------
+
+	BOOST_FOREACH(ROMOL_SPTR p_mol, mols)
+	{
+		SparseIntVect<boost::uint32_t> *fp;
+		fp =  MorganFingerprints::getFingerprint(*p_mol,2);
+		SIV_SPTR p_fp(fp);
+		fingerprints.push_back(p_fp);
+	}
 }
 
 int main()
 {
-	// get the molecules as a vector of pointers
-	// for each mol in mols, make the mol the reference and the 
-	// rest the queries
-	
-	string var = "P39900";
-	auto mols = getMols(var);
-	int count = 0;
-	for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end();++i)
+	std::string file_name = "P39900";
+	std::vector<ROMOL_SPTR> mols;
+	std::vector<MOL_FRAGS> frags;
+	std::vector <SIV_SPTR> mol_fps;
+	std::vector<std::vector <SIV_SPTR> > frag_fps;
+	std::vector<std::vector <ROMOL_SPTR> > total_sections;
+
+	// get molecules
+	std::cout<<"Getting mols... " << std::endl;
+	ReadMols(file_name,mols);
+
+	// fragment mols to obtain vectors of fragmented mols
+	FragmentMols(mols,frags);
+
+	// get fingerprints of each fragment
+	for(unsigned int i = 0; i < frags.size(); ++i)
 	{
-		ROMol *mol = *i;
-		auto ref_fragments = fragment_mol(*mol); 	// as mol is a smart pointer we use *mol
+		std::vector<SIV_SPTR> f_fps;
+		BuildFps(frags[i],f_fps);
+		frag_fps.push_back(f_fps);
+	}
 
-		// for the remaining molecules, fragment and score
-		for(vector<ROMol*>::iterator j = i; j!=mols.end();++j)
+	// print frags and fingerprints to ensure they are the same indices for debugging
+	/*std::cout<<"print frags and fingerprints to ensure they are the same indices" << std::endl;	
+	for(unsigned int i = 0; i < frags.size(); ++i)
+	{
+		std::cout<<"no frags: " << frags[i].size() << "\tno. fps: " << frag_fps[i].size() << std::endl;
+	}
+	*/
+	int pair_count = 0;
+
+	for(unsigned int ref = 0; ref < frags.size()-1; ++ref)
+	{
+		MOL_FRAGS ref_mol = frags[ref];
+
+		for(unsigned int query = ref+1; query < frags.size(); ++query)
 		{
-			if(*j != mol)
+			MOL_FRAGS query_mol = frags[query];
+			// for each fragment in a reference molecule
+			// produce the section score
+			// get vector of coordinates
+
+			for(unsigned int r_fr = 0; r_fr < ref_mol.size(); ++r_fr)
 			{
-				ROMol* query = *j;
-				auto query_fragments = fragment_mol(*query);
+				ROMOL_SPTR ref_frag = ref_mol[r_fr];
 
-				// for each fragment in a reference molecule
-				// produce the section score
-				// get vector of coordinates
-				for(const auto& ref_frag : ref_fragments)
-				{
-					// create a vector of matched pairs
-					vector<sp_fragments> section_match;
-					section_match.push_back(ref_frag);
+				// create a vector of group pairs
+				std::vector<ROMOL_SPTR> section_group;
+				section_group.push_back(ref_frag);
 
-					Conformer ref_conf = ref_frag->getConformer();
-					auto ref_pos = ref_conf.getPositions();
-					for(const auto& q_frag : query_fragments)
+				// get the conformer of the ref_frag
+				Conformer ref_conf = ref_frag->getConformer();
+				auto ref_pos = ref_conf.getPositions();
+
+				
+				for(unsigned int q_fr = 0; q_fr < query_mol.size(); ++q_fr)
 					{
+						// get the conformer of the ref_frag
+						ROMOL_SPTR q_frag = query_mol[q_fr];
 						Conformer q_conf = q_frag->getConformer();
 						auto q_pos = q_conf.getPositions();
 
 						// calculate distance
-						long double section_dist = 0;
+						double section_score = 0;
 						for(const auto& r_atom : ref_pos)
 						{
 							for(const auto& q_atom : q_pos)
@@ -130,13 +168,14 @@ int main()
 								double x = r_atom.x - q_atom.x;
 								double y = r_atom.y - q_atom.y;
 								double z = r_atom.z - q_atom.z;
-								long double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
+								double dist = sqrt(pow(x,2) + pow(y,2) + pow(z,2));
 								// calculate gaussian overlap 
-								section_dist += exp(-pow(dist,2));
+								section_score += exp(-pow(dist,2));
 							}
 						}
 						// calculate average overlap 
 						double total_atoms = (ref_frag->getNumAtoms() + q_frag->getNumAtoms());
+<<<<<<< HEAD
 						long double section_score = section_dist * (2/total_atoms);
 						
 						SparseIntVect<boost::uint32_t> *fp_ref, *fp_q;
@@ -147,42 +186,55 @@ int main()
 						double tan = TanimotoSimilarity(*fp_ref,*fp_q);
 
 						if (section_score > 0.7 && tan != 1.0)
+=======
+						double av_score = section_score * (2/total_atoms);
+						//std::cout<< std::setprecision(16) << av_score<<std::endl;
+						
+						// Calculate Tanimoto Similarity
+						double sim = TanimotoSimilarity(*frag_fps[ref][r_fr],*frag_fps[query][q_fr]);
+						if (av_score > 0.7 && sim != 1)
+>>>>>>> devel
 						{
-							section_match.push_back(q_frag);
+							// debugging print out
+							//std::cout << "kenn: " << av_score << "\tsim: " << sim << std::endl;
+							section_group.push_back(q_frag);
+							pair_count++;
 						}
 					
 					}
-					if(section_match.size() > 1)
+			
+					
+				if(section_group.size() > 1)
+				{
+					//std::cout << "number of pairs in section: " << section_group.size() << std::endl;
+					total_sections.push_back(section_group);
+					/*
+					BOOST_FOREACH(ROMOL_SPTR mol, section_group)
 					{
-						//cout << "number of pairs in section: " << section_match.size() << endl;
-						string fname = "/usr/users/people/matts/fragments/test_output/cpp/pair_" + to_string(count)+".sdf";
-						/*
-						SDWriter *writer = new SDWriter(fname);
-						for(auto const& match : section_match)
-						{
-							writer->write(*match);
-						}
-						writer->flush();
-						writer->close();
-						delete writer;
-						*/
-						count ++;
+						std::cout << "num atoms in mol: " << (*mol).getNumAtoms() << std::endl;
 					}
+					*/
+					
+					char* home = getenv("HOME");
+					std::string fname = std::string(home) + "/fragments/test_output/cpp/pair_" + std::to_string(pair_count)+".sdf";
+					SDWriter *writer = new SDWriter(fname);
+					for(auto const& match : section_group)
+					{
+						writer->write(*match);
+					}
+					writer->flush();
+					writer->close();
+					delete writer;
 				}
-			} 
+			}
+
+
 		}
 	}
-	cout << "number of pairs: " << count << endl;
-	for(const auto& mol : mols)
-	{
-		delete mol;
-	}
 
+
+	std::cout<<"pair count: " << pair_count << std::endl;
+	std::cout<<"group count: " << total_sections.size() << std::endl;
+
+	return 0;
 }
-
-// if we assume that all mols are fragmented equally then we only need to
-// overlay them once?? 
-// for(vector<ROMol*>::iterator i = mols.begin(); i!=mols.end()-1;++i)
-// for(vector<ROMol*>::iterator j = i+1; j!=mols.end();++j)
-// TODO:: optimise loops?? 
-// TODO:: delete fingerprints

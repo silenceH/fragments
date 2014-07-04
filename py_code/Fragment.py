@@ -11,9 +11,11 @@ class Fragment(object):
 	## fp : the RDKit Morgan 2 fingerprint for Tanimoto comparison
 	## smiles : canonical smiles representation
 	##
-	def __init__(self, frag,ligand, coords = None, fp=None,smiles=None):
+	def __init__(self, frag,ligand = None, coords = None, fp=None,smiles=None):
 		self.frag = frag
 
+		if ligand is None:
+			self.ligand = ligand
 		self.ligand = ligand
 
 		if coords is None:
@@ -39,6 +41,15 @@ class Fragment(object):
 		else: 
 			return False
 
+	def tanimoto_score(self,frag2):
+		## returns tanimoto score of two fragments
+		if self.fp is None:
+			self.fp = AllChem.GetMorganFingerprint(self.frag,2)
+		if frag2.fp is None:
+			frag2.fp = AllChem.GetMorganFingerprint(frag2.frag,2)
+		return	DataStructs.TanimotoSimilarity(self.fp,frag2.fp)
+
+
 	def get_all_coords(self):
 			## return a list of coords for the 3D shape of a mol 
 		if self.coords is None:
@@ -48,7 +59,7 @@ class Fragment(object):
 			# return the list of the coordinates from those positions
 			self.coords = [(atom.x,atom.y,atom.z) for atom in tmp]
 
-	def score_pairs_kennewell(self,mol2):
+	def score_pairs_kennewell(self,mol2,test=False):
 		## get number of atoms for each molecule
 		atoms_ref = self.frag.GetNumAtoms()
 		atoms_f = mol2.frag.GetNumAtoms()
@@ -60,6 +71,8 @@ class Fragment(object):
 			dist = [sqrt(pow((section_atom[0]-x[0]),2)+pow((section_atom[1]-x[1]),2)+pow((section_atom[2]-x[2]),2)) for x in mol2.coords]
 			section_score.append(sum([exp(-pow(d,2)) for d in dist]))
 		av_score = sum(section_score)*(2./(atoms_f+atoms_ref))
+		if test:
+			print "\taverage score: " + str(av_score)
 		if av_score>0.7:
 			return True 
 		else: 
