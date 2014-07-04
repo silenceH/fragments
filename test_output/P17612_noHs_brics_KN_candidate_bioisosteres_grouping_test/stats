@@ -1,0 +1,20 @@
+SUMMARY STATISTICS FOR OVERLAY P17612_noHs_brics_KN
+Tanimoto cut off for similarity is 1.
+Hydrogen's removed.
+Kennewell scoring
+Number of fragments: 52
+Number of identified pairs : 40
+Number of overlaid sections: 9
+group 	frags 	av similarity
+1	2	0.027027027027
+2	12	0.201890327551
+3	3	0.316091954023
+4	2	0.104166666667
+5	12	0.212773898222
+6	2	0.357142857143
+7	2	0.571428571429
+8	2	0.448275862069
+9	2	0.448275862069
+
+average similarity over the group: 0.298563669578
+

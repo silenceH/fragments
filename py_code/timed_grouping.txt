@@ -1,0 +1,19 @@
+test_1 passed
+test_2 passed
+test_3 passed
+test_4 passed
+test_5 passed
+test_6 passed
+all frags ranked from one target 182
+all frags ranked from two targets 744
+all frags ranked from three targets 2996
+all frags ranked from two targets 7596
+old way took 1.43132686615
+all frags ranked from one target 182
+all frags ranked from two targets 812
+all frags ranked from three targets 3192
+all frags ranked from two targets 8010
+new method took 1.09177112579
+improvement = 76.2768555257
+now testing with half database. Last time it took 5 hours
+all frags ranked from half targets655290
