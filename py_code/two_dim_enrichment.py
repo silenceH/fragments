@@ -3,12 +3,12 @@ import Bioisosteres
 
 def get_enrichment(target,*args):
 	# get a list of all the ranked 2D pairs
-	all_fragments = enrichment.rank_targets_test(target)[0]
+	all_fragments = enrichment.rank_targets_test(True, target)#[0] # True for pair objects
 	bioisostere_pairs = [x.group for x in  Bioisosteres.get_bioisosteres(target,test=True,return_pairs=True)]
 	ranked_list = [0 for x in range(len(all_fragments))]
 
 	for i in range(len(all_fragments)):
-		test_pair = all_fragments[i]
+		test_pair = all_fragments[i].frags
 		for ranked_pair in bioisostere_pairs:
 			if (test_pair[0].are_similar(ranked_pair[0],1) and test_pair[1].are_similar(ranked_pair[1],1)) or \
 					(test_pair[0].are_similar(ranked_pair[0],1) and test_pair[1].are_similar(ranked_pair[1],1)):
@@ -67,4 +67,4 @@ for target in targets:
 		f.write(str(ef) + ',')
 	f.write('\n')
 	
-
+f.close()

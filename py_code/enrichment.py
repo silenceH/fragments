@@ -1,5 +1,22 @@
 from Bioisosteres import *
 
+class Pair:
+	def __init__(self, frags, twoDim=None, threeDim=None):
+		self.frags=frags
+		if twoDim is None:
+			self.twoDim=twoDim
+		self.twoDim=twoDim
+		if threeDim is None:
+			self.threeDim=threeDim
+
+		def set_score(self,score,dim):
+			if dim == 2:
+				self.twoDim = score
+			if dim == 3: 
+				self.threeDim = score
+			if dim != 2 or dim != 3:
+				print str(dim) + " not a valid dimension"
+
 ## define return list of frags that have the query as a bioisosteric pair
 def pairs_with_query(list_of_pairs, query):
 	## test for group objects
@@ -35,6 +52,15 @@ def rank_list_of_fragments(query,list_of_fragments,return_scores = False):
 	if return_scores:
 		return list_of_fragments,scores
 	return list_of_fragments
+
+def score_list_frag_pairs(query, list_of_fragments):
+	## create list of objects
+	pair_list = []
+	scores = score_similarity(query,list_of_fragments)
+	for i in range(len(list_of_fragments)):
+		new_pair = Pair((query,list_of_fragments[i]),twoDim=scores[i])
+		pair_list.append(new_pair)
+	return pair_list
 
 def mergeSorted(scores_1,fragments_1, scores_2, fragments_2):
 	final_score= []
@@ -123,9 +149,20 @@ def mergeSorted(scores_1,fragments_1, scores_2, fragments_2):
 
 	return final_frag, final_score
 
-def rank_all_frags(list_of_fragments):
+def rank_all_frags(list_of_fragments,pair_obj=False):
+	if pair_obj:
+		final_list = []
+		for frag_1 in list_of_fragments:
+			query_list = [x for x in list_of_fragments if x is not frag_1]
+			list_of_pairs = score_list_frag_pairs(frag_1,query_list)
+			final_list.extend(list_of_pairs)
+
+		final_list.sort(key=lambda x: x.twoDim, reverse=True)
+		return final_list
+
 	final_list = []
 	final_scores = []
+
 
 	for frag_1 in list_of_fragments:
 		query_list = [x for x in list_of_fragments if x is not frag_1]
@@ -168,8 +205,10 @@ def rank_targets(*args):
 	all_fragments = get_unique_fragments_from_files(*args)
 	return ranked_list_of_all_fragments(all_fragments)
 
-def rank_targets_test(*args):
+def rank_targets_test(pair_obj,*args):
 	all_fragments = get_unique_fragments_from_files(*args)
+	if pair_obj:
+		return rank_all_frags(all_fragments,True)
 	return rank_all_frags(all_fragments)
 
 def find_rank(fragment,list_of_fragments):
