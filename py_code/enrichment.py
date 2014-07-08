@@ -8,6 +8,7 @@ class Pair:
 		self.twoDim=twoDim
 		if threeDim is None:
 			self.threeDim=threeDim
+		self.threeDim=threeDim
 
 		def set_score(self,score,dim):
 			if dim == 2:
@@ -33,10 +34,35 @@ def pairs_with_query(list_of_pairs, query):
 	final_list = final_list_a + final_list_b
 	return final_list
 
-def score_similarity(query,list_of_fragments):
+def score_similarity(query,list_of_fragments,threeDim=False):
 	## returna  list of all the fragments in a set of overlays
 	similarity_scores = [x.tanimoto_score(query) for x in list_of_fragments]
+	if threeDim:
+		threeDim_scores = [get_3D_score(query.frag,x.frag) for x in list_of_fragments]
+		return similarity_scores,threeDim_scores
 	return similarity_scores
+
+def get_3D_score(query, ref):
+	#write to tmp sdf file
+	f = Chem.SDWriter("temp_ref.sdf")
+	f.write(query)
+	f.flush()
+
+	g = Chem.SDWriter("temp_dat.sdf")
+	g.write(ref)
+	g.flush()
+
+	# get score
+	os.system("shape-it -r temp_ref.sdf -d temp_dat.sdf -s output.dat")
+	f = open('output.dat','r')
+	results = f.readlines()[1]
+	first_tab = results.find('\t')
+	second_tab = results.find('\t',first_tab+1)
+	third_tab = results.find('\t',second_tab+1)
+	score = float(results[second_tab:third_tab])
+
+	return score
+
 
 def rank_list_of_fragments(query,list_of_fragments,return_scores = False):
 	## rank a list of fragments by the similarity to a query
@@ -53,12 +79,18 @@ def rank_list_of_fragments(query,list_of_fragments,return_scores = False):
 		return list_of_fragments,scores
 	return list_of_fragments
 
-def score_list_frag_pairs(query, list_of_fragments):
+def score_list_frag_pairs(query, list_of_fragments,threeDim=False):
 	## create list of objects
 	pair_list = []
-	scores = score_similarity(query,list_of_fragments)
+	if threeDim:
+		scores,threeDim_scores = score_similarity(query,list_of_fragments,True)
+	else:
+		scores = score_similarity(query,list_of_fragments)
 	for i in range(len(list_of_fragments)):
-		new_pair = Pair((query,list_of_fragments[i]),twoDim=scores[i])
+		if threeDim:
+			new_pair = Pair((query,list_of_fragments[i]),twoDim=scores[i],threeDim=threeDim_scores[i])
+		else:
+			new_pair = Pair((query,list_of_fragments[i]),twoDim=scores[i])
 		pair_list.append(new_pair)
 	return pair_list
 
@@ -175,7 +207,17 @@ def rank_all_frags(list_of_fragments,pair_obj=False):
 			final_list,final_scores = mergeSorted(final_scores,final_list,scores,ranked_list_pairs)
 	return final_list,final_scores
 
+def rank_all_frags_threeDim(list_of_fragments):
+	final_list = []
+	for frag_1 in list_of_fragments:
+		query_list = [x for x in list_of_fragments if x is not frag_1]
+		list_of_pairs = score_list_frag_pairs(frag_1,query_list,True)
+		final_list.extend(list_of_pairs)
 
+	final_list.sort(key=lambda x: x.threeDim, reverse=True)
+	return final_list
+
+		
 
 def ranked_list_of_all_fragments(list_of_fragments):
 	## define final list of fragments and scores
@@ -205,10 +247,12 @@ def rank_targets(*args):
 	all_fragments = get_unique_fragments_from_files(*args)
 	return ranked_list_of_all_fragments(all_fragments)
 
-def rank_targets_test(pair_obj,*args):
+def rank_targets_test(threeDim,pair_obj,*args):
 	all_fragments = get_unique_fragments_from_files(*args)
 	if pair_obj:
 		return rank_all_frags(all_fragments,True)
+	if threeDim:
+		return rank_all_frags_threeDim(all_fragments)
 	return rank_all_frags(all_fragments)
 
 def find_rank(fragment,list_of_fragments):
