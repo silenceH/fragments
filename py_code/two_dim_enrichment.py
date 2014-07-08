@@ -72,7 +72,7 @@ targets = [target[:-4] for target in files]
 f = open('full_enrichment_stats.csv','w')
 f.write('target,0.01,0.05,0.13,0.01,0.05,0.13,0.2,0.5,\n')
 for target in targets[:10]:
-	efs,efs_3D = get_enrichment(True,target,0.01,0.05,0.13,)
+	efs,efs_3D = get_enrichment(True,target,0.01,0.05,0.13)
 	f.write(str(target)+',')
 	for ef in efs:
 		f.write(str(ef) + ',')

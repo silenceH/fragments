@@ -1,0 +1,48 @@
+total actives = 3
+total inactives = 179
+enrichment factor threshold
+0.01	0.0
+0.05	0.0
+0.13	5.05555555556
+0.2	5.05555555556
+0.5	2.0
+total actives = 23
+total inactives = 249
+enrichment factor threshold
+0.01	3.94202898551
+0.05	1.68944099379
+0.13	1.01366459627
+0.2	1.09500805153
+0.5	1.30434782609
+total actives = 69
+total inactives = 1121
+enrichment factor threshold
+0.01	5.74879227053
+0.05	3.16183574879
+0.13	2.67040673212
+0.2	2.31884057971
+0.5	1.10144927536
+total actives = 19
+total inactives = 287
+enrichment factor threshold
+0.01	10.7368421053
+0.05	8.58947368421
+0.13	5.23421052632
+0.2	3.43226919758
+0.5	1.36842105263
+total actives = 36
+total inactives = 776
+enrichment factor threshold
+0.01	2.81944444444
+0.05	3.85094850949
+0.13	2.5534591195
+0.2	2.36694101509
+0.5	1.27777777778
+total actives = 134
+total inactives = 568
+enrichment factor threshold
+0.01	0.0
+0.05	0.898081023454
+0.13	0.575692963753
+0.2	0.636140724947
+0.5	0.477611940299
