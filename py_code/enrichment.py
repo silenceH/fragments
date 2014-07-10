@@ -10,13 +10,15 @@ class Pair:
 			self.threeDim=threeDim
 		self.threeDim=threeDim
 
-		def set_score(self,score,dim):
-			if dim == 2:
-				self.twoDim = score
-			if dim == 3: 
-				self.threeDim = score
-			if dim != 2 or dim != 3:
-				print str(dim) + " not a valid dimension"
+		self.active = 0
+
+	def set_score(self,score,dim):
+		if dim == 2:
+			self.twoDim = score
+		if dim == 3: 
+			self.threeDim = score
+		if dim != 2 or dim != 3:
+			print str(dim) + " not a valid dimension"
 
 ## define return list of frags that have the query as a bioisosteric pair
 def pairs_with_query(list_of_pairs, query):
@@ -214,7 +216,6 @@ def rank_all_frags_threeDim(list_of_fragments):
 		list_of_pairs = score_list_frag_pairs(frag_1,query_list,True)
 		final_list.extend(list_of_pairs)
 
-	final_list.sort(key=lambda x: x.threeDim, reverse=True)
 	return final_list
 
 		
@@ -254,6 +255,9 @@ def rank_targets_test(threeDim,pair_obj,*args):
 	if threeDim:
 		return rank_all_frags_threeDim(all_fragments)
 	return rank_all_frags(all_fragments)
+
+def pairs_are_the_same(pair1,pair2):
+	return True
 
 def find_rank(fragment,list_of_fragments):
 	for i in range(len(list_of_fragments)):
