@@ -44,7 +44,6 @@ def get_i_fragment_from_smarts(mol,smarts,i):
 			frag_group.add(Fragment(tmp_frag))
 		return frag_group
 
-## TODO :: update this method for Fragment object
 def get_section_set(sections):
 	## function to collect different sections of candidate bioisosteres
 	grouped = []

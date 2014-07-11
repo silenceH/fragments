@@ -22,14 +22,16 @@ def get_enrichment(args):
 		all_fragment_pairs.extend(target_ranks)
 		all_bioisosteres.extend(bioisostere_pairs)
 		
-	# sort list of fragment pairs into order
-	
+	# deduplicate all_fragment_pairs list
+	print "start deduplication"
+	all_fragment_pairs = enrichment.deduplicate_list(all_fragment_pairs)
+	print "finish deduplication"
+
 	for i in range(len(all_fragment_pairs)):
 		test_pair = all_fragment_pairs[i].frags
 		for ranked_pair in all_bioisosteres:
-			if (test_pair[0].are_similar(ranked_pair[0],1) and test_pair[1].are_similar(ranked_pair[1],1)) or \
-					(test_pair[0].are_similar(ranked_pair[0],1) and test_pair[1].are_similar(ranked_pair[1],1)):
-						test_pair.active = 1
+			if enrichment.pairs_are_the_same(test_pair,ranked_pair):
+				test_pair.active = 1
 	
 	actives = len(all_bioisosteres)
 	total_pairs = len(all_fragment_pairs)
@@ -65,7 +67,7 @@ for file in os.listdir(data_dir):
 targets = [target[:-4] for target in files]
 
 stats_file = open('ranked_list.csv','w')
-get_enrichment(targets[:15])
+get_enrichment(targets[:5])
 
 
 for i in range(len(ranks)):

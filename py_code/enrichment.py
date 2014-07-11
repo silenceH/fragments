@@ -257,7 +257,29 @@ def rank_targets_test(threeDim,pair_obj,*args):
 	return rank_all_frags(all_fragments)
 
 def pairs_are_the_same(pair1,pair2):
-	return True
+	# are two objects pairs the same
+	if (pair1.frags[0].are_similar(pair2.frags[0],1) or pair1.frags[0].are_similar(pair2.frags[1],1)): 
+		if (pair1.frags[1].are_similar(pair2.frags[0],1) or pair1.frags[1].are_similar(pair2.frags[1],1)):
+			return True
+	return False
+
+def pair_in_list(q_pair,pair_list):
+	## scan a list to see if a pair is in a list
+	in_list = False
+	for l_pair in pair_list:
+		if pairs_are_the_same(q_pair, l_pair):
+			in_list = True
+			break
+	return in_list
+
+def deduplicate_list(pair_list):
+	# given a list of fragment pairs, return a list of unique pairs
+	# by 2D similarity
+	final_list = [pair_list[0]]
+	for pair in pair_list:
+		if not pair_in_list(pair,final_list):
+			final_list.append(pair)
+	return final_list
 
 def find_rank(fragment,list_of_fragments):
 	for i in range(len(list_of_fragments)):
