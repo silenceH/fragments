@@ -48,22 +48,26 @@ def get_3D_score(query, ref):
 	#write to tmp sdf file
 	f = Chem.SDWriter("temp_ref.sdf")
 	f.write(query)
-	f.flush()
+	f.close()
 
 	g = Chem.SDWriter("temp_dat.sdf")
 	g.write(ref)
-	g.flush()
+	g.close()
 
 	# get score
+	#os.system("shape-it --scoreOnly -r temp_ref.sdf -d temp_dat.sdf -s output.dat")
 	os.system("shape-it -r temp_ref.sdf -d temp_dat.sdf -s output.dat")
-	f = open('output.dat','r')
-	results = f.readlines()[1]
-	first_tab = results.find('\t')
-	second_tab = results.find('\t',first_tab+1)
-	third_tab = results.find('\t',second_tab+1)
-	score = float(results[second_tab:third_tab])
+	try:
+		f = open('output.dat','r')
+		results = f.readlines()[1]
+		first_tab = results.find('\t')
+		second_tab = results.find('\t',first_tab+1)
+		third_tab = results.find('\t',second_tab+1)
+		score = float(results[second_tab:third_tab])
 
-	return score
+		return score
+	except IndexError:
+		return 'na'
 
 
 def rank_list_of_fragments(query,list_of_fragments,return_scores = False):
@@ -265,18 +269,16 @@ def pairs_are_the_same(pair1,pair2):
 
 def pair_in_list(q_pair,pair_list):
 	## scan a list to see if a pair is in a list
-	in_list = False
 	for l_pair in pair_list:
 		if pairs_are_the_same(q_pair, l_pair):
-			in_list = True
-			break
-	return in_list
+			return True
+	return False
 
 def deduplicate_list(pair_list):
 	# given a list of fragment pairs, return a list of unique pairs
 	# by 2D similarity
 	final_list = [pair_list[0]]
-	for pair in pair_list:
+	for pair in pair_list[1:]:
 		if not pair_in_list(pair,final_list):
 			final_list.append(pair)
 	return final_list

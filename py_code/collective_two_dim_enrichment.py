@@ -22,15 +22,20 @@ def get_enrichment(args):
 		all_fragment_pairs.extend(target_ranks)
 		all_bioisosteres.extend(bioisostere_pairs)
 		
+	print str(len(all_fragment_pairs)) + " pairs"
+
 	# deduplicate all_fragment_pairs list
 	print "start deduplication"
 	all_fragment_pairs = enrichment.deduplicate_list(all_fragment_pairs)
 	print "finish deduplication"
+	
+	print str(len(all_fragment_pairs)) + " unique pairs"
 
 	for i in range(len(all_fragment_pairs)):
-		test_pair = all_fragment_pairs[i].frags
+		test_pair = all_fragment_pairs[i]
 		for ranked_pair in all_bioisosteres:
-			if enrichment.pairs_are_the_same(test_pair,ranked_pair):
+			ranked_pair_obj = enrichment.Pair(ranked_pair)
+			if enrichment.pairs_are_the_same(test_pair,ranked_pair_obj):
 				test_pair.active = 1
 	
 	actives = len(all_bioisosteres)
@@ -44,7 +49,12 @@ def get_enrichment(args):
 
 	for i in range(len(all_fragment_pairs)):
 		f.write(str(all_fragment_pairs[i].twoDim)+','+str(all_fragment_pairs[i].threeDim)+','+str(all_fragment_pairs[i].active)+',\n')
-
+	
+	count = 0 
+	for pair in all_fragment_pairs: 
+		if abs(pair.twoDim - pair.threeDim) > 0.2:
+			count += 1
+	print "num with difference > 0.2: " + str(count)		
 
 
 	
@@ -67,10 +77,7 @@ for file in os.listdir(data_dir):
 targets = [target[:-4] for target in files]
 
 stats_file = open('ranked_list.csv','w')
-get_enrichment(targets[:5])
+get_enrichment(targets[:15])
 
-
-for i in range(len(ranks)):
-	stats_file.write(str(scores[i]) + ',' + str(ranks[i]) + ',\n')
 
 #get_enrichment(targets[:75])
