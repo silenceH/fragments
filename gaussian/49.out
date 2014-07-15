@@ -1,0 +1,2 @@
+dbName	refName	Shape-it::Tanimoto	Shape-it::Tversky_Ref	Shape-it::Tversky_Db	overlap	refVolume	dbVolume
+3f15_lig_HS1	1utz_lig_PF3	0.669	0.745	0.867	53.626	72.54	61.281

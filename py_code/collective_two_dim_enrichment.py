@@ -1,5 +1,6 @@
 import enrichment
 import Bioisosteres
+from rdkit import Chem
 
 # get enrichment over all targets
 
@@ -44,17 +45,30 @@ def get_enrichment(args):
 	print "total actives = " + str(actives)
 	print "total inactives = " + str(total_pairs-actives)
 
-	f = open("2D_3D_activity_15.csv",'w')
+	f = open("2D_3D_activity_" + str(len(args)) + ".csv",'w')
 	f.write("2Dscore,3Dscore,active,\n")
 
 	for i in range(len(all_fragment_pairs)):
 		f.write(str(all_fragment_pairs[i].twoDim)+','+str(all_fragment_pairs[i].threeDim)+','+str(all_fragment_pairs[i].active)+',\n')
 	
+	directory = '../test_output/weird_pairs/' 
+
+	try: 
+		os.makedirs(directory)
+		print "created new directory: " + directory
+	except OSError:
+		print directory + " already exists" 
+			
 	count = 0 
 	for pair in all_fragment_pairs: 
-		if abs(pair.twoDim - pair.threeDim) > 0.2:
+		if abs(pair.twoDim - pair.threeDim) > 0.4:
 			count += 1
-	print "num with difference > 0.2: " + str(count)		
+			w = Chem.SDWriter(directory+str(pair)+'.sdf')
+			w.write(pair.frags[0].frag)
+			w.write(pair.frags[1].frag)
+			w.flush()
+			
+	print "num with difference > 0.4: " + str(count)		
 
 
 	
