@@ -164,7 +164,7 @@ def get_bioisosteres(data_file,noHs=True,brics=True, kennewell=True,overlap=Fals
 	if overlap:  data_file += "_overlap"
 	if kennewell: data_file += "_KN"
 
-	directory = '../test_output/'+data_file+'_candidate_bioisosteres_grouping_test/' 
+	directory = '../test_output/'+data_file+'_candidate_bioisosteres/' 
 	try: 
 		os.makedirs(directory)
 		if debug:

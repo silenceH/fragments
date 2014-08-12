@@ -4,8 +4,6 @@ from rdkit import Chem
 
 # get enrichment over all targets
 
-# TODO: add 3D enrichment
-
 def get_enrichment(args):
 	# get a list of all the ranked 2D pairs
 	all_fragment_pairs = []
@@ -39,7 +37,7 @@ def get_enrichment(args):
 			if enrichment.pairs_are_the_same(test_pair,ranked_pair_obj):
 				test_pair.active = 1
 	
-	actives = len(all_bioisosteres)
+	actives = sum([1 for x in all_fragment_pairs if x.active == 1])
 	total_pairs = len(all_fragment_pairs)
 
 	print "total actives = " + str(actives)
@@ -59,16 +57,21 @@ def get_enrichment(args):
 	except OSError:
 		print directory + " already exists" 
 			
-	count = 0 
-	for pair in all_fragment_pairs: 
-		if abs(pair.twoDim - pair.threeDim) > 0.4:
-			count += 1
-			w = Chem.SDWriter(directory+str(pair)+'.sdf')
-			w.write(pair.frags[0].frag)
-			w.write(pair.frags[1].frag)
-			w.flush()
-			
-	print "num with difference > 0.4: " + str(count)		
+	#weird_stats = open(directory+'weird_stats.csv','w')
+	#weird_stats.write('pair_num,2D,3D,\n')
+	#count = 0 
+	#for pair in all_fragment_pairs: 
+	#	if abs(pair.twoDim - pair.threeDim) > 0.6:
+	#		count += 1
+	#		w = Chem.SDWriter(directory+'pair_'+str(all_fragment_pairs.index(pair))+'.sdf')
+	#		w.write(pair.frags[0].frag)
+	#		w.write(pair.frags[1].frag)
+	#		w.flush()
+	#		weird_stats.write(str(all_fragment_pairs.index(pair))+','  + \
+	#			str(pair.twoDim)+','+str(pair.threeDim)+',\n')
+	#		
+	#print "num with difference > 0.6: " + str(count)		
+	#weird_stats.close()
 
 
 	

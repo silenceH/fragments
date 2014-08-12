@@ -27,9 +27,21 @@ def count_cross_target_pairs(args):
 
 	
 	## make dirs by count number 
+	pair_number = 0
+	stats_file = '../test_output/common_pairs/common_pair_stats.csv' 
+	stats = open(stats_file,'w')
+	target_freq = {}
+
 	for frag_pair in final_dict:
+
 		count = len(final_dict[frag_pair])
 		if count > 1:
+			# find frequency of targets
+			for target in final_dict[frag_pair]:
+				if target in target_freq:
+					target_freq[target] += 1
+				else: 
+					target_freq[target] = 1
 			directory = '../test_output/common_pairs/'+str(count)+'/' 
 			try: 
 				os.makedirs(directory)
@@ -37,17 +49,22 @@ def count_cross_target_pairs(args):
 			except OSError:
 				print directory + " already exists" 
 			
-			w = Chem.SDWriter(directory+str(frag_pair)+'.sdf')
+			stats.write(str(pair_number) + ',' + str(len(final_dict[frag_pair])) + ',' \
+					+ str(DataStructs.TanimotoSimilarity(frag_pair[0].fp,frag_pair[1].fp)) + ','\
+					+ str(final_dict[frag_pair]) + ',\n')
+			w = Chem.SDWriter(directory+str(pair_number)+'.sdf')
 			for mol in frag_pair: 
 				w.write(mol.frag)
 			w.flush()
+		pair_number += 1
+
+	stats.write('\n')
+	
+	for target in target_freq:
+		stats.write(target + ',' + str(target_freq[target]) + ',\n')
 			
-	stats_file = '../test_output/common_pairs/common_pair_stats.csv' 
-	stats = open(stats_file,'w')
-	for x in final_dict.values():
-		for y in [len(x) for x in final_dict.values()]:
-			if y>1:
-				stats.write(str(x) + ',' + str(y) + ',\n')
+	
+	print pair_number
 	stats.close()
 
 

@@ -55,15 +55,16 @@ def get_3D_score(query, ref):
 	g.close()
 
 	# get score
-	#os.system("shape-it --scoreOnly -r temp_ref.sdf -d temp_dat.sdf -s output.dat")
-	os.system("shape-it -r temp_ref.sdf -d temp_dat.sdf -s output.dat")
+	os.system("shape-it --scoreOnly -r temp_ref.sdf -d temp_dat.sdf -s output.dat")
+	#os.system("shape-it -r temp_ref.sdf -d temp_dat.sdf -s output.dat --addIterations 500")
 	try:
-		f = open('output.dat','r')
-		results = f.readlines()[1]
+		out = open('output.dat','r')
+		results = out.readlines()[1]
 		first_tab = results.find('\t')
 		second_tab = results.find('\t',first_tab+1)
 		third_tab = results.find('\t',second_tab+1)
 		score = float(results[second_tab:third_tab])
+		out.close()
 
 		return score
 	except IndexError:
